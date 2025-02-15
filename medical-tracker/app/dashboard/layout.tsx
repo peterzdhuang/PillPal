@@ -1,6 +1,6 @@
 import type React from "react"
 import Link from "next/link"
-import { PillIcon, Home, Scan, Calendar, Users, User } from "lucide-react"
+import { PillIcon, Scan, Users, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -18,22 +18,10 @@ export default function DashboardLayout({
             <span className="font-bold">MedTrack</span>
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="w-9 px-0">
-                <Home className="h-4 w-4" />
-                <span className="sr-only">Home</span>
-              </Button>
-            </Link>
             <Link href="/dashboard/scan">
               <Button variant="ghost" size="sm" className="w-9 px-0">
                 <Scan className="h-4 w-4" />
                 <span className="sr-only">Scan</span>
-              </Button>
-            </Link>
-            <Link href="/dashboard/calendar">
-              <Button variant="ghost" size="sm" className="w-9 px-0">
-                <Calendar className="h-4 w-4" />
-                <span className="sr-only">Calendar</span>
               </Button>
             </Link>
             <Link href="/dashboard/community">
