@@ -6,10 +6,11 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from .models import User
 from .serializers import UserSerializer
+from rest_framework.permissions import AllowAny
 
 class UserAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, format=None):
         content = {
@@ -20,8 +21,8 @@ class UserAuthView(APIView):
         return Response(content)
 
     def post(self, request, *args, **kwargs):
-        user = User.objects.get(username=request.user)
-        user.is_caregiver = not user.is_caregiver
-        user.save()
-        return Response(status=200)
-    
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
