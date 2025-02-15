@@ -6,17 +6,17 @@ from .serializer import MedicationSerializer
 
 class AllMedicationsView(generics.ListCreateAPIView):
     """
-    View to list all medications or create a new one.
+    View to list all medications for a specific user or create a new one for that user.
     """
-    queryset = Medication.objects.all()
     serializer_class = MedicationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
-        Only return medications belonging to the authenticated user.
+        Only return medications belonging to the user from the URL.
         """
-        return Medication.objects.filter(user=self.request.user)
+        user_id = self.kwargs.get('user_id')
+        return Medication.objects.filter(user_id=user_id)
 
     def perform_create(self, serializer):
         """
@@ -26,15 +26,15 @@ class AllMedicationsView(generics.ListCreateAPIView):
 
 class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
     """
-    View to retrieve, update, or delete a single medication.
+    View to retrieve, update, or delete a single medication for a specific user.
     """
-    queryset = Medication.objects.all()
     serializer_class = MedicationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         """
-        Fetch medication only if it belongs to the authenticated user.
+        Fetch medication only if it belongs to the authenticated user and the user_id in URL.
         """
-        medication_id = self.kwargs.get("medication_id")
-        return get_object_or_404(Medication, id=medication_id, user=self.request.user)
+        user_id = self.kwargs.get('user_id')
+        medication_id = self.kwargs.get('medication_id')
+        return get_object_or_404(Medication, id=medication_id, user_id=user_id)
