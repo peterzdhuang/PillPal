@@ -1,4 +1,6 @@
+'use client'
 import Link from "next/link"
+import { useState } from "react"
 import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -6,6 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function LoginPage() {
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+
+  const handleSubmit = (formdata: FormData) => {
+    const email = formdata.get("email")
+    const password = formdata.get("password")
+    console.log(email, password)
+  }
+
   return (
     <div className="flex min-h-screen">
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
@@ -26,7 +37,7 @@ export default function LoginPage() {
             </p>
           </div>
           <div className="mt-6">
-            <form action="#" className="space-y-6">
+            <form action={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="email">Email address</Label>
                 <div className="mt-2">
@@ -69,5 +80,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-}
-
+} 
