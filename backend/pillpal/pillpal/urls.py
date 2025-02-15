@@ -16,7 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from pillapp.views import AllMedicationsView, SingleMedicationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # medication endpoints
+    path('medications', AllMedicationsView.as_view()),
+    path('medications/<uuid:medication_id>', SingleMedicationView.as_view())
 ]
