@@ -1,29 +1,41 @@
 'use client'
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { ArrowLeft } from "lucide-react"
 import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const router = useRouter()
 
-  const handleSubmit = (formdata: FormData) => {
-    const email = formdata.get("email")
-    const password = formdata.get("password")
-    console.log(email, password)
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    try {
+      const response = await axios.get("http://localhost:8000/api/login/")
+      if (response.status === 200) {
+        router.push("/dashboard")
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  axios.post("/api/login", { email, password })
-    .then((res) => {
-      console.log(res)
-    })
-    .catch((err) => {
-      console.error(err)
-    })
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/login")
+      .then(response => {
+        if (response.status === 200) {
+          router.push("/dashboard")
+        }
+        console.log("hello")
+      }).catch(error => {
+        console.error(error);
+      })
+  }, [router])
 
   return (
     <div className="flex min-h-screen">
@@ -45,7 +57,7 @@ export default function LoginPage() {
             </p>
           </div>
           <div className="mt-6">
-            <form action={handleSubmit} className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <Label htmlFor="email">Email address</Label>
                 <div className="mt-2">
