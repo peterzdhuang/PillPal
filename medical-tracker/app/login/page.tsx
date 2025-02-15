@@ -11,13 +11,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    setEmail(formData.get("email") as string);
-    setPassword(formData.get("password") as string);
+  const handleSubmit = (formdata: FormData) => {
+    const email = formdata.get("email")
+    const password = formdata.get("password")
+    console.log(email, password)
   }
 
   return (
@@ -40,7 +37,7 @@ export default function LoginPage() {
             </p>
           </div>
           <div className="mt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form action={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="email">Email address</Label>
                 <div className="mt-2">
