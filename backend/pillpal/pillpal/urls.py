@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # medication endpoints
-    path('medications', AllMedicationsView.as_view()),
-    path('medications/<uuid:medication_id>', SingleMedicationView.as_view())
+    path('api/<uuid:user_id/medications', AllMedicationsView.as_view()),
+    path('api/<uuid:user_id/medications/<uuid:medication_id>', SingleMedicationView.as_view())
 ]
