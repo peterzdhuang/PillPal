@@ -14,6 +14,10 @@ export default function Home() {
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
             <Link href="/login">
+              <Button>Sign up</Button>
+            </Link>
+
+            <Link href="/login">
               <Button>Log in</Button>
             </Link>
           </nav>
