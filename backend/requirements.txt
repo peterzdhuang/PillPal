@@ -1,4 +1,5 @@
 asgiref==3.8.1
 Django
-django-restframework==0.0.1
+django-restframework
 sqlparse==0.5.3
+django-cors-headers
