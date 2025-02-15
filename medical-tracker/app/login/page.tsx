@@ -25,17 +25,6 @@ export default function LoginPage() {
     }
   }
 
-  useEffect(() => {
-    axios.get("http://localhost:8000/api/login")
-      .then(response => {
-        if (response.status === 200) {
-          router.push("/dashboard")
-        }
-        console.log("hello")
-      }).catch(error => {
-        console.error(error);
-      })
-  }, [router])
 
   return (
     <div className="flex min-h-screen">
