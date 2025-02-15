@@ -1,8 +1,8 @@
 'use client'
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowLeft } from "lucide-react"
-
+import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +16,14 @@ export default function LoginPage() {
     const password = formdata.get("password")
     console.log(email, password)
   }
+
+  axios.post("/api/login", { email, password })
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 
   return (
     <div className="flex min-h-screen">
