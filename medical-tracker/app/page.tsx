@@ -10,14 +10,11 @@ export default function Home() {
         <div className="container flex h-14 items-center">
           <Link href="/" className="flex items-center space-x-2">
             <Pills className="h-6 w-6" />
-            <span className="font-bold">MedTrack</span>
+            <span className="font-bold">Pillpal</span>
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
             <Link href="/login">
-              <Button variant="ghost">Log in</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Sign up</Button>
+              <Button>Log in</Button>
             </Link>
           </nav>
         </div>
@@ -92,7 +89,7 @@ export default function Home() {
       </main>
       <footer className="border-t">
         <div className="container flex h-14 items-center">
-          <p className="text-sm text-muted-foreground">© 2024 MedTrack. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© 2025 Pillpal. All rights reserved.</p>
         </div>
       </footer>
     </div>
