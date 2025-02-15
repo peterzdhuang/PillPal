@@ -1,19 +1,29 @@
 from django.db import models
 
-# Create your models here.
-
 class User(models.Model):
-    role = models.CharField(max_length=100)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=100)
+    is_caretaker = models.BooleanField()
+    patient_email = models.EmailField(null=True, blank=True)
     followers = models.ManyToManyField('self', symmetrical=False)
 
-class Pill(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
-    dosage = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class Medication(models.Model):
+    FREQUENCY_CHOICES = [
+        ('once', 'Once a day'),
+        ('twice', 'Twice a day'),
+        ('thrice', 'Three times a day'),
+        ('custom', 'Custom'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medications")
+    name = models.CharField(max_length=255, verbose_name="Medication Name")
+    dosage = models.CharField(max_length=50, verbose_name="Dosage", help_text="e.g. 500mg")
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, verbose_name="Frequency")
+    first_dose = models.TimeField(null=True, blank=True, verbose_name="First Dose")
+    second_dose = models.TimeField(null=True, blank=True, verbose_name="Second Dose")
+    quantity = models.IntegerField(verbose_name="Quantity", help_text="Number of pills")
+
+    def __str__(self):
+        return f"{self.name} - {self.dosage}"
