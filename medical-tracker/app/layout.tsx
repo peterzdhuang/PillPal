@@ -41,3 +41,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </GlobalContext.Provider>
   );
 }
+
+// Richard dont have people put random shit in your code that breaks everything
+// |
+// V  wtf is this who the fuck put this here, you're importing two different global.css
+
+// pages/_app.tsx
+// import type { AppProps } from "next/app";
+// import Footer from "@/components/ui/footercomponent"; // Import the Layout component
+// import "@/styles/globals.css"; // Import global styles
+
+// export function MyApp({ Component, pageProps }: AppProps) {
+//   return (
+//     <Footer> 
+//       <Component {...pageProps} /> {/* This wraps all pages with the Layout */}
+//     </Footer>
+//   );
+// }
