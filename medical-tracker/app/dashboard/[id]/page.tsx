@@ -399,6 +399,7 @@ export default function DashboardPage() {
               <CardTitle className="flex items-center space-x-2 text-yellow-700">
                 <AlertCircle className="h-5 w-5" />
                 <span>Low Stock Alert</span>
+                
               </CardTitle>
             </CardHeader>
             <CardContent>
