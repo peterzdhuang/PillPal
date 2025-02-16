@@ -95,6 +95,7 @@ export default function ScanPage() {
         {
           headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
           }
         }
       );
