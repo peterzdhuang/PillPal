@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { PillIcon as Pills, Bell, Calendar, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import TextExtract from "@/components/TextExtract"
 
 export default function Home() {
   return (
