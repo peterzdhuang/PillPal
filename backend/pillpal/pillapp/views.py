@@ -12,11 +12,16 @@ from rest_framework import status
 from django.contrib.auth import authenticate, login
 from .scanner import analyze
 from rest_framework import status
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.response import Response
+from django.http import JsonResponse
 
+@ensure_csrf_cookie
+def csrf_token_view(request):
+    return JsonResponse({'detail': 'CSRF cookie set.'})
 class UserAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -73,24 +78,34 @@ class UserSingleView(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(User, id=user_id)
 
 class AllMedicationsView(generics.ListCreateAPIView):
-    """
-    View to list all medications for a specific user or create a new one for that user.
-    """
     serializer_class = MedicationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
-        """
-        Only return medications belonging to the user from the URL.
-        """
-        user_id = self.kwargs.get('user_id')
-        return Medication.objects.filter(user_id=user_id)
+        """Return medications for the authenticated user"""
+        return Medication.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        """
-        Automatically assign the authenticated user to the new medication.
-        """
-        serializer.save(user=self.request.user)
+        """Automatically assign the authenticated user"""
+        try:
+            serializer.save(user=self.request.user)
+        except Exception as e:
+            raise ValidationError({'error': str(e)})
+
+    def create(self, request, *args, **kwargs):
+        """Handle the scan data format"""
+        # Map frontend fields to your serializer fields if needed
+        data = request.data.copy()
+        data['user'] = request.user.id
+        
+        # Add any additional field mappings here if needed
+        # Example: data['name'] = data.get('pillName')
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -170,7 +185,7 @@ class GetUserById(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserMedication(APIView):
+class UserMedication(APIView): # this wont work, i changed the model - peter
     def get(self, request, user_id, format=None):
         user = User.objects.get(id=user_id)
         medications = user.medications.all()
