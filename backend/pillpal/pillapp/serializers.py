@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Medication
+from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     followers = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
