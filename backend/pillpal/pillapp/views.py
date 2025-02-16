@@ -80,12 +80,9 @@ class UserSingleView(generics.RetrieveUpdateDestroyAPIView):
 class AllMedicationsView(generics.ListCreateAPIView):
     serializer_class = MedicationSerializer
     permission_classes = [AllowAny]
-    
+
     def get_queryset(self):
-        """Retrieve medications for a specific user"""
-        user_id = self.kwargs.get("user_id")
-        if not user_id:
-            raise ValidationError({"error": "User ID is required."})
+        user_id = self.kwargs['user_id']  # The user ID passed in the URL path
         return Medication.objects.filter(user_id=user_id)
 
     def perform_create(self, serializer):
