@@ -10,13 +10,14 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function SignUpPage() {
-  const [firstName, setFirstName] = useState<string>("")
-  const [lastName, setLastName] = useState<string>("")
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [confirmPassword, setConfirmPassword] = useState<string>("")
-  const [isCaretaker, setIsCaretaker] = useState<boolean>(false)
-  const router = useRouter()
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [isCaretaker, setIsCaretaker] = useState<boolean>(false);
+  const [patientEmail, setPatientEmail] = useState<string>(""); 
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -28,8 +29,8 @@ export default function SignUpPage() {
         password,
         confirm_password: confirmPassword,
         is_caretaker: isCaretaker,
-      })
-      console.log(response) // Log the response
+        caretaker_email: patientEmail,
+      });
 
       router.push("/login")
     } catch (error) {
@@ -95,6 +96,23 @@ export default function SignUpPage() {
                     I am a caretaker
                   </label>
                 </div>
+                {isCaretaker && (
+                  <div className="space-y-2 rounded-lg border p-4">
+                    <Label htmlFor="patient-email">Patient's Email Address</Label>
+                    <Input
+                      id="patient-email"
+                      type="email"
+                      placeholder="Enter your patient's email"
+                      required={isCaretaker}
+                      className="block w-full"
+                      value={patientEmail}
+                      onChange={(e) => setPatientEmail(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Your patient will receive an email to confirm this connection
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-center space-x-2">
                   <Checkbox id="terms" required />
                   <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
