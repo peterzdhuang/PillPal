@@ -12,42 +12,88 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import axios from "axios"
-import { useGlobalContext } from "@/app/layout";
-import { json } from "stream/consumers"
+import { useGlobalContext } from "@/app/layout"
 
 export default function ProfilePage() {
+  // All hooks are called unconditionally.
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
     sms: false,
   })
-
   const [firstName, setFirstName] = useState<string>("")
   const [lastName, setLastName] = useState<string>("")
   const [email, setEmail] = useState<string>("")
-  const [phone, setPhone] = useState<string>("")
+  const [phone, setPhone] = useState<string>("") // Separate state for phone.
+  const [currentPassword, setCurrentPassword] = useState<string>("")
+  const [newPassword, setNewPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
 
   const { user } = useGlobalContext()
 
-  if (!user) {
-    return <p>No user logged in</p>
-  }
+  // Always call useEffect; add a guard inside the effect.
+  useEffect(() => {
+    if (!user) return
 
-  console.log('current user:', user)
-
-    // Use user.id here if needed:
     axios
       .get(`http://localhost:8000/api/user/${user}/`)
       .then((response) => {
-        console.log(response.data)
+        console.log("Fetched user data:", response.data)
         setFirstName(response.data.first_name)
         setLastName(response.data.last_name)
         setEmail(response.data.email)
         setPhone(response.data.phone)
       })
       .catch((error) => {
-        console.error(error)
+        console.error("Error fetching user data:", error)
       })
+  }, [user])
+
+  // Render fallback if no user is available.
+  if (!user) {
+    return <p>No user logged in</p>
+  }
+
+  // Handle updating the profile (general info)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    try {
+      const response = await axios.post(`http://localhost:8000/api/user/${user}/`, {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+      })
+
+      console.log("Updated user data:", response.data)
+    } catch (error) {
+      console.error("Error updating user data:", error)
+    }
+  }
+
+  // Handle password update
+  const updatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (newPassword !== confirmPassword) {
+      console.error("New password and confirm password do not match");
+      return;
+    }
+  
+    try {
+      // Note: The endpoint is the same as your profile update.
+      const response = await axios.post(`http://localhost:8000/api/user/${user}/`, {
+        // Only send password fields here.
+        current_password: currentPassword,
+        password: newPassword,
+      });
+      console.log("Updated password:", response.data);
+    } catch (error) {
+      console.error("Error updating password:", error);
+    }
+  };
+  
 
   return (
     <div className="container max-w-4xl py-6">
@@ -127,7 +173,9 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <Button>Save Changes</Button>
+              <form onSubmit={handleSubmit}>
+                <Button type="submit">Save Changes</Button>
+              </form>
             </CardContent>
           </Card>
 
@@ -141,17 +189,31 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="current-password">Current Password</Label>
-                <Input id="current-password" type="password" />
+                <Input
+                  id="current-password"
+                  type="password"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password">New Password</Label>
-                <Input id="new-password" type="password" />
+                <Input
+                  id="new-password"
+                  type="password"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirm New Password</Label>
-                <Input id="confirm-password" type="password" />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
               </div>
-              <Button>Update Password</Button>
+              <form onSubmit={updatePassword}>
+                <Button type="submit">Update Password</Button>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
