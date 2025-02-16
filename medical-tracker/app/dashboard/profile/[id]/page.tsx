@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Camera, Users } from "lucide-react"
+import { ArrowLeft, Camera, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import axios from "axios"
 import { useGlobalContext } from "@/app/layout"
 import { on } from "events"
+import Link from "next/link"
 
 export default function ProfilePage() {
   const [notifications, setNotifications] = useState<boolean>(false);
@@ -125,6 +126,12 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl py-6">
+        <div className="flex items-center">
+            <Link href={`/dashboard/${user}`} className="flex items-center space-x-2 text-muted-foreground hover:text-primary">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </Link>
+          </div>
       <div className="mb-8 space-y-4">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
         <p className="text-muted-foreground">
