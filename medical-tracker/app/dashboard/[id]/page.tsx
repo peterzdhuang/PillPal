@@ -409,23 +409,16 @@ export default function DashboardPage() {
           
         </div>
         
-        <div className="flex min-h-svh items-center justify-center">
-            <div className="w-full max-w-6xl">
-                <ChartArea />
-            </div>
-        </div>
-
-
         {/* Medication Schedule */}
         <Card>
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="h-5 w-5 text-primary" />
-                <span>Upcoming Schedule</span>
+                <span>Daily Schedule</span>
               </CardTitle>
               <Badge variant="outline" className="text-primary">
-                Next 7 days
+                Set a Reminder Below!
               </Badge>
             </div>
           </CardHeader>
@@ -664,6 +657,16 @@ export default function DashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        
+      {/*
+      <div className="flex min-h-svh items-center justify-center mt-10">
+            <div className="w-full max-w-6xl">
+                <ChartArea />
+            </div>
+        </div>      
+      */}
+      
     </div>
+    
   );
 }
