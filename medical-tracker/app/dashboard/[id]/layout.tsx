@@ -15,7 +15,7 @@ export default function DashboardLayout({
 
   const { user } = useGlobalContext();
   if (!user) {
-    return <p>No user logged in</p>; // Handle case where no user is logged in
+    return <p>No user logged in</p>; 
   }
   else {
     console.log(user)

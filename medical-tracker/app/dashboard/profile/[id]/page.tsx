@@ -16,7 +16,6 @@ import { useGlobalContext } from "@/app/layout"
 import { on } from "events"
 
 export default function ProfilePage() {
-  // Initialize notifications with a default boolean value.
   const [notifications, setNotifications] = useState<boolean>(false);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -30,7 +29,6 @@ export default function ProfilePage() {
 
   const { user } = useGlobalContext();
 
-  // Always call useEffect; add a guard inside the effect.
   useEffect(() => {
     if (!user) return;
   
@@ -289,7 +287,7 @@ export default function ProfilePage() {
                 <div className="space-y-0.5">
                   <Label className="text-base">SMS Notifications</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive text message reminders for medications.
+                    Receive notification for medications.
                   </p>
                 </div>
                 <Switch

@@ -12,7 +12,7 @@ export default function Home() {
             <span className="font-bold">Pillpal</span>
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
-            <Link href="/login">
+            <Link href="/signup">
               <Button>Sign up</Button>
             </Link>
 
