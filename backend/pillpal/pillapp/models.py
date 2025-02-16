@@ -1,11 +1,6 @@
 from django.db import models
 import uuid
 class User(models.Model):
-    id = models.UUIDField(
-        default=uuid.uuid4,
-        primary_key=True,
-        editable=False,
-    )
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -25,11 +20,6 @@ class Medication(models.Model):
         ('custom', 'Custom'),
     ]
 
-    id = models.UUIDField(
-        default=uuid.uuid4,
-        primary_key=True,
-        editable=False,
-    )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medications")
     name = models.CharField(max_length=255, verbose_name="Medication Name")
     dosage = models.CharField(max_length=50, verbose_name="Dosage", help_text="e.g. 500mg")
