@@ -21,6 +21,7 @@ import {
 import { useState, useEffect } from "react";
 import TextScanner, { MedicationFields } from "@/components/TextExtract";
 import axios from "axios";
+import { useGlobalContext } from "@/app/layout";
 
 export default function ScanPage() {
  
@@ -36,48 +37,14 @@ export default function ScanPage() {
   const [frequency, setFrequency] = useState("");
   const [directions, setDirections] = useState("");
   const [refills, setRefills] = useState("");
-  const [csrfToken, setCsrfToken] = useState('');
-  useEffect(() => {
-    // Make sure axios sends cookies with requests
-    axios.defaults.withCredentials = true;
-
-    // Helper to get a cookie by name
-    function getCookie(name : any) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        cookies.forEach(cookie => {
-          const trimmed = cookie.trim();
-          if (trimmed.startsWith(name + "=")) {
-            cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
-          }
-        });
-      }
-      return cookieValue;
-    }
-
-    async function fetchCSRFToken() {
-      try {
-        await axios.get('http://127.0.0.1:8000/api/csrf_token/');
-        const token = getCookie('csrftoken'); // Extract CSRF token from cookies
-        if (token) {
-          setCsrfToken(token);
-          console.log('CSRF token retrieved:', token);
-        } else {
-          console.warn('CSRF token not found in cookies.');
-        }
-      } catch (error) {
-        console.error('Error fetching CSRF token:', error);
-      }
-    }
-
-    fetchCSRFToken();
-  }, []);
+  const {user} = useGlobalContext(); 
 
 
   const handleSaveMedication = async () => {
     // Create medication data object
+    console.log(user);
     const medicationData = {
+      user,
       pharmacyName,
       pharmacyAddress,
       pillName,
@@ -95,7 +62,6 @@ export default function ScanPage() {
         {
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
           }
         }
       );
