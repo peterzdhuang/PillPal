@@ -10,16 +10,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function SignUpPage() {
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [isCaretaker, setIsCaretaker] = useState<boolean>(false);
-  const router = useRouter();
+  const [firstName, setFirstName] = useState<string>("")
+  const [lastName, setLastName] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
+  const [isCaretaker, setIsCaretaker] = useState<boolean>(false)
+  const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
     try {
       const response = await axios.post("http://localhost:8000/api/signup/", {
         first_name: firstName,
@@ -28,12 +28,12 @@ export default function SignUpPage() {
         password,
         confirm_password: confirmPassword,
         is_caretaker: isCaretaker,
-      });
-      console.log(response); // Log the response
+      })
+      console.log(response) // Log the response
 
-      router.push("/login");
+      router.push("/login")
     } catch (error) {
-      console.error("Error during sign up:", error);
+      console.error("Error during sign up:", error)
     }
   }
 
@@ -113,8 +113,9 @@ export default function SignUpPage() {
           </div>
         </div>
       </div>
+      {/* Right-side Image */}
       <div className="relative hidden w-0 flex-1 lg:block">
-        <img className="absolute inset-0 h-full w-full object-cover" src="/placeholder.svg?height=1080&width=1920" alt="Medical professional helping patient" />
+        <img className="absolute inset-0 h-full w-full object-cover" src="/doctor.jpg" alt="Doctor assisting patient" />
       </div>
     </div>
   )
