@@ -13,14 +13,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import axios from "axios"
 import { useGlobalContext } from "@/app/layout"
+import { on } from "events"
 
 export default function ProfilePage() {
-  // All hooks are called unconditionally.
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: true,
-    sms: false,
-  });
+  // Initialize notifications with a default boolean value.
+  const [notifications, setNotifications] = useState<boolean>(false);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -30,7 +27,6 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const { user } = useGlobalContext();
 
@@ -46,6 +42,7 @@ export default function ProfilePage() {
         setLastName(response.data.last_name);
         setEmail(response.data.email);
         setPhone(response.data.phone);
+        setNotifications(response.data.notifications);
         if (response.data.image) {
           // Prepend the backend URL to the image path
           const imageUrl = `http://localhost:8000${response.data.image}`;
@@ -86,6 +83,7 @@ export default function ProfilePage() {
       formData.append("last_name", lastName);
       formData.append("email", email);
       formData.append("phone", phone);
+      formData.append("notifications", notifications.toString());
 
       if (selectedImage) {
         formData.append("image", selectedImage);
@@ -117,7 +115,6 @@ export default function ProfilePage() {
     }
 
     try {
-      // Note: Adjust this endpoint as needed. Here we're sending JSON.
       const response = await axios.post(`http://localhost:8000/api/user/${user}/`, {
         current_password: currentPassword,
         password: newPassword,
@@ -155,18 +152,21 @@ export default function ProfilePage() {
             <CardContent className="space-y-6">
               <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                 <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src={imagePreview || "/placeholder.svg?height=96&width=96"}
-                  alt="Profile"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/placeholder.svg?height=96&width=96";
-                  }}
-                />
-                  <AvatarFallback>
-                    {firstName?.charAt(0)}
-                    {lastName?.charAt(0)}
-                  </AvatarFallback>
+                  {imagePreview ? (
+                    <AvatarImage
+                      src={imagePreview}
+                      alt="Profile"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg?height=96&width=96";
+                      }}
+                    />
+                  ) : (
+                    <AvatarFallback>
+                      {firstName?.charAt(0)}
+                      {lastName?.charAt(0)}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div className="flex flex-col space-y-2">
                   <input
@@ -284,50 +284,25 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive daily medication summaries and important updates.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, email: checked })
-                    }
-                  />
+            <form onSubmit={handleSubmit}>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">SMS Notifications</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive text message reminders for medications.
+                  </p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get real-time medication reminders on your device.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.push}
-                    onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, push: checked })
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive text message reminders for medications.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, sms: checked })
-                    }
-                  />
-                </div>
+                <Switch
+                  checked={notifications}
+                  onCheckedChange={(checked) => {
+                    setNotifications(checked);
+                  }}
+                />
               </div>
+              <Button type="submit" className="mt-4">
+                Save Notification Preferences
+              </Button>
+            </form>
             </CardContent>
           </Card>
         </TabsContent>
