@@ -10,29 +10,30 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function SignUpPage() {
-  const [firstName, setFirstName] = useState<string>("")
-  const [lastName, setLastName] = useState<string>("")
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [confirmPassword, setConfirmPassword] = useState<string>("")
-  const [isCaretaker, setIsCaretaker] = useState<boolean>(false)
-  const router = useRouter()
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [isCaretaker, setIsCaretaker] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     try {
-        const response = await axios.post("http://localhost:8000/api/signup/", {
-            first_name: firstName,
-            last_name: lastName,
-            email,
-            password,
-            confirm_password: confirmPassword,
-            is_caretaker: isCaretaker,
-        })
-        console.log(response)
-        router.push("/login")
+      const response = await axios.post("http://localhost:8000/api/signup/", {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        confirm_password: confirmPassword,
+        is_caretaker: isCaretaker,
+      });
+      console.log(response); // Log the response
+
+      router.push("/login");
     } catch (error) {
-      console.error(error)
+      console.error("Error during sign up:", error);
     }
   }
 
@@ -76,23 +77,6 @@ export default function SignUpPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" name="password" type="password" autoComplete="new-password" required className="block w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <div className="space-y-1 text-sm">
-                  <p className="text-muted-foreground">Password must contain:</p>
-                  <div className="grid gap-2">
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span className="text-muted-foreground">At least 8 characters</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span className="text-muted-foreground">One uppercase letter</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span className="text-muted-foreground">One number or symbol</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -102,11 +86,11 @@ export default function SignUpPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="caretaker"
-                  checked={isCaretaker}
-                  onCheckedChange={(checked) => setIsCaretaker(checked === true)}
-                />
+                  <Checkbox
+                    id="caretaker"
+                    checked={isCaretaker}
+                    onCheckedChange={(checked) => setIsCaretaker(checked === true)}
+                  />
                   <label htmlFor="caretaker" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     I am a caretaker
                   </label>

@@ -1,5 +1,5 @@
 from django.db import models
-import uuid
+
 class User(models.Model):
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     first_name = models.CharField(max_length=100)
@@ -27,7 +27,6 @@ class Medication(models.Model):
     first_dose = models.TimeField(null=True, blank=True, verbose_name="First Dose")
     second_dose = models.TimeField(null=True, blank=True, verbose_name="Second Dose")
     quantity = models.IntegerField(verbose_name="Quantity", help_text="Number of pills")
-
 
     def __str__(self):
         return f"{self.name} - {self.dosage}"
