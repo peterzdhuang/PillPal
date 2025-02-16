@@ -1,5 +1,6 @@
 'use client'
-import { Camera, Check, X } from "lucide-react";
+import { Link } from "lucide-react";
+import { ArrowLeft, Camera, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation'
 import {
@@ -89,6 +90,15 @@ export default function ScanPage() {
 
   return (
     <div className="container max-w-xl py-6">
+      <div className="flex items-center mb-4">
+        <button
+          onClick={() => router.back()} // Navigates back to the previous page
+          className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back</span>
+        </button>
+      </div>      
       <Card>
         <CardHeader>
           <CardTitle>Scan Medication Label</CardTitle>
