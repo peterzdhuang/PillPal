@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ChartArea } from "@/components/chart-line"
 
 // Import Dialog components (or your own Modal components)
 import {
@@ -208,14 +209,13 @@ export default function DashboardPage() {
     }
 
     try {
-      await axios.post(
-        `http://localhost:8000/api/medications/take/${user.user}/${med.id}/`,
-        {
-          quantity: updatedQty,
-          date_prescribed: nextDueDate.toISOString(),
-          last_taken: lastTakenDate.toISOString(),
-        }
-      );
+        await axios.patch(
+            `http://localhost:8000/api/medications/${user.user}/${med.id}/`,
+            {
+                quantity: updatedQty,
+                last_taken: lastTakenDate.toISOString(),
+            }
+        );
 
       setMedications((prev) =>
         prev.map((m) =>
@@ -406,7 +406,15 @@ export default function DashboardPage() {
               <p className="text-sm text-yellow-600">Medications below 10 pills</p>
             </CardContent>
           </Card>
+          
         </div>
+        
+        <div className="flex min-h-svh items-center justify-center">
+            <div className="w-full max-w-6xl">
+                <ChartArea />
+            </div>
+        </div>
+
 
         {/* Medication Schedule */}
         <Card>
@@ -504,7 +512,7 @@ export default function DashboardPage() {
           <CardHeader className="border-b">
             <CardTitle>Medication List</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 ml-4 mr-4 mt-2 mb02">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
