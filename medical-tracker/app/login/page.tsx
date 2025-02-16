@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { useGlobalContext } from "@/app/layout";
+import { useGlobalContext } from "@/app/layout"
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("")
@@ -20,16 +20,14 @@ export default function LoginPage() {
 
     try {
       const response = await axios.post("http://localhost:8000/api/login/", {
-        username: email,  // Assuming backend expects 'username'
+        username: email, // Assuming backend expects 'username'
         password: password,
       })
 
       if (response.status === 200) {
         const userId = response.data.id
-        // Update global context with user data (you could update with response.data.user or any other field)
-        updateUser(userId);
+        updateUser(userId)
         router.push(`/dashboard/${userId}`)
-
       }
     } catch (error) {
       console.error("Login failed", error)
@@ -66,8 +64,8 @@ export default function LoginPage() {
                     type="email"
                     autoComplete="email"
                     required
-                    value={email} // Bind email state here
-                    onChange={(e) => setEmail(e.target.value)} // Handle change
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="block w-full"
                   />
                 </div>
@@ -81,8 +79,8 @@ export default function LoginPage() {
                     type="password"
                     autoComplete="current-password"
                     required
-                    value={password} // Bind password state here
-                    onChange={(e) => setPassword(e.target.value)} // Handle change
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="block w-full"
                   />
                 </div>
@@ -101,10 +99,11 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      {/* Right-side Image */}
       <div className="relative hidden w-0 flex-1 lg:block">
         <img
           className="absolute inset-0 h-full w-full object-cover"
-          src="/placeholder.svg?height=1080&width=1920"
+          src="/med.jpg"
           alt="Medical background"
         />
       </div>
