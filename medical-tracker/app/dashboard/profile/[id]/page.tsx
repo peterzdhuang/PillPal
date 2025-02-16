@@ -37,11 +37,11 @@ export default function ProfilePage() {
 
     // Use user.id here if needed:
     axios
-      .get("http://localhost:8000/api/user/1")
+      .get(`http://localhost:8000/api/user/${user}/`)
       .then((response) => {
         console.log(response.data)
-        setFirstName(response.data.firstName)
-        setLastName(response.data.lastName)
+        setFirstName(response.data.first_name)
+        setLastName(response.data.last_name)
         setEmail(response.data.email)
         setPhone(response.data.phone)
       })
