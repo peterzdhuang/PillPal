@@ -1,6 +1,7 @@
 'use client'
 import { Camera, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation'
 import {
   Card,
   CardContent,
@@ -38,11 +39,11 @@ export default function ScanPage() {
   const [directions, setDirections] = useState("");
   const [refills, setRefills] = useState("");
   const {user} = useGlobalContext(); 
+  const router = useRouter()
 
 
   const handleSaveMedication = async () => {
     // Create medication data object
-    console.log(user);
     const medicationData = {
       user,
       pharmacyName,
@@ -65,6 +66,7 @@ export default function ScanPage() {
           }
         }
       );
+      router.push(`/dashboard/${user}`)
       console.log('Medication saved:', response.data);
     } catch (error) {
       console.error('Error saving medication:', error);
@@ -82,17 +84,6 @@ export default function ScanPage() {
     setRefills(fields.refills || "");
     // Optionally close the scanner after extraction
     setShowScanner(false);
-  
-    // Log everything
-    console.log("Extracted fields object:", fields);
-    console.log("Pharmacy Name:", fields.pharmacyName);
-    console.log("Pharmacy Address:", fields.pharmacyAddress);
-    console.log("Medication Name:", fields.pillName);
-    console.log("Date:", fields.date);
-    console.log("Quantity:", fields.numberOfPills);
-    console.log("Frequency:", fields.frequency);
-    console.log("Directions:", fields.directions);
-    console.log("Refills:", fields.refills);
   };
   
 
