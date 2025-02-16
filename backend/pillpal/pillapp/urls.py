@@ -16,5 +16,6 @@ urlpatterns = [
     path('api/medications/<int:user_id>', AllMedicationsView.as_view(), name='medications-list'),
     path('api/medications/', AllMedicationsView.as_view(), name='medications-list'),
     path('api/csrf_token/', csrf_token_view, name="csrf_token"),
+    path('api/caretaker/<int:user_id>/', views.CareTaker.as_view(), name='caretaker'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

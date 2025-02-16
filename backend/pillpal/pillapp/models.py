@@ -8,7 +8,7 @@ class User(models.Model):
     phone = models.CharField(max_length=15, null=True, blank=True)
     password = models.CharField(max_length=100)
     is_caretaker = models.BooleanField(default=False)
-    patient_email = models.EmailField(null=True, blank=True)
+    caretaker_email = models.EmailField(null=True, blank=True)
     followers = models.ManyToManyField('self', symmetrical=False, default=None, blank=True)
     notifications = models.BooleanField(default=True)
 

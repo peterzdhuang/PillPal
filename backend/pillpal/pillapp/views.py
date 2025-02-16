@@ -90,7 +90,7 @@ class AllMedicationsView(generics.ListCreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except Exception as e:
-            raise ValidationError({'error': str(e)})
+            raise e
 
     def create(self, request, *args, **kwargs):
         """Handle the scan data format"""
@@ -129,6 +129,7 @@ class GetUserById(APIView):
             'password': user.password,
             'image': user.image.url if user.image else None,
             'notifications': user.notifications,
+            'caretaker_email': user.caretaker_email,
         }
         return Response(user_data)
     
@@ -146,6 +147,7 @@ class GetUserById(APIView):
         current_password = request.data.get('current_password')  # Current password for verification
         image = request.data.get('image')  # Image file
         notifications = request.data.get('notifications')  # Notification settings
+        caretaker_email = request.data.get('caretaker_email') 
 
         # Update profile fields if provided.
         if firstname is not None:
@@ -166,6 +168,11 @@ class GetUserById(APIView):
                     user.notifications = False
             else:
                 user.notifications = notifications
+        if caretaker_email is not None:
+            caretaker = User.objects.get(email=caretaker_email)
+            if not caretaker_email and caretaker.is_caretaker == False:
+                return Response({"error": "Caretaker email not found"}, status=status.HTTP_404_NOT_FOUND)
+            user.caretaker_email = caretaker_email
 
         # Update password only if a new password was provided.
         if new_password:
@@ -178,6 +185,91 @@ class GetUserById(APIView):
         user.save()
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CareTaker(APIView):
+    """
+    CRUD on caretaker relationship for a specific user via /api/caretaker/<int:user_id>/
+    """
+
+    def get(self, request, user_id, format=None):
+        """
+        GET caretaker info for the given user_id.
+        """
+        user = get_object_or_404(User, id=user_id)
+        caretaker_user = User.objects.get(email=user.caretaker_email)
+        if not caretaker_user:
+            return Response({"detail": "No caretaker assigned."}, status=status.HTTP_404_NOT_FOUND)
+        
+        caretaker_data = {
+            "id": caretaker_user.id,
+            "first_name": caretaker_user.first_name,
+            "last_name": caretaker_user.last_name,
+            "email": caretaker_user.email,
+            "phone": caretaker_user.phone,
+        }
+        return Response(caretaker_data, status=status.HTTP_200_OK)
+
+    def post(self, request, user_id, format=None):
+        """
+        POST to assign a new caretaker by email (if caretaker isn't assigned yet).
+        """
+        user = get_object_or_404(User, id=user_id)
+        caretaker_email = request.data.get("caretaker_email")
+        if not caretaker_email or caretaker_email == user.email:
+            return Response({"error": "Invalid caretaker email."}, status=status.HTTP_400_BAD_REQUEST
+
+        try:
+            caretaker_user = User.objects.get(email=caretaker_email)
+        except User.DoesNotExist:
+            return Response({"error": "Caretaker user does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Optionally check caretaker_user.is_caretaker == True, etc.
+        user.caretaker_email = caretaker_user.email
+        user.save()
+
+        caretaker_data = {
+            "id": caretaker_user.id,
+            "first_name": caretaker_user.first_name,
+            "last_name": caretaker_user.last_name,
+            "email": caretaker_user.email,
+            "phone": caretaker_user.phone,
+        }
+        return Response(caretaker_data, status=status.HTTP_201_CREATED)
+
+    def patch(self, request, user_id, format=None):
+        """
+        PATCH to update caretaker email (if caretaker is already assigned or to change caretaker).
+        """
+        user = get_object_or_404(User, id=user_id)
+        caretaker_email = request.data.get("caretaker_email")
+        if not caretaker_email:
+            return Response({"error": "Caretaker email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            caretaker_user = User.objects.get(email=caretaker_email)
+        except User.DoesNotExist:
+            return Response({"error": "Caretaker user does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        user.caretaker_email = caretaker_user
+        user.save()
+
+        caretaker_data = {
+            "id": caretaker_user.id,
+            "first_name": caretaker_user.first_name,
+            "last_name": caretaker_user.last_name,
+            "email": caretaker_user.email,
+            "phone": caretaker_user.phone,
+        }
+        return Response(caretaker_data, status=status.HTTP_200_OK)
+
+    def delete(self, request, user_id, format=None):
+        """
+        DELETE to remove caretaker assignment from the user (set caretaker_email=None).
+        """
+        user = get_object_or_404(User, id=user_id)
+        user.caretaker_email = None
+        user.save()
+        return Response({"detail": "Caretaker removed."}, status=status.HTTP_204_NO_CONTENT)
 
 class UserMedication(APIView): # this wont work, i changed the model - peter
     def get(self, request, user_id, format=None):
