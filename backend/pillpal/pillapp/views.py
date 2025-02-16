@@ -96,16 +96,10 @@ class AllMedicationsView(generics.ListCreateAPIView):
         """Handle the scan data format"""
         # Map frontend fields to your serializer fields if needed
         data = request.data.copy()
-        data['user'] = request.user.id
-        
-        # Add any additional field mappings here if needed
-        # Example: data['name'] = data.get('pillName')
-        
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer = MedicationSerializer(data=request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
     """
