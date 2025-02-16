@@ -1,7 +1,7 @@
 'use client'
 import type React from "react"
 import Link from "next/link"
-import { PillIcon, Scan, Users, User } from "lucide-react"
+import { PillIcon, Scan, Users, User, SettingsIcon, FormInputIcon, MessageSquareIcon, MessageCircleCodeIcon, MessageCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -27,24 +27,19 @@ export default function DashboardLayout({
         <div className="container flex h-14 items-center">
           <Link href={`/dashboard/${user}`} className="flex items-center space-x-2">
             <PillIcon className="h-6 w-6" />
-            <span className="font-bold">MedTrack</span>
+            <span className="font-bold">PillPal</span>
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
-            <Link href={`/dashboard/scan/${user}`}>
-              <Button variant="ghost" size="sm" className="w-9 px-0">
-                <Scan className="h-4 w-4" />
-                <span className="sr-only">Scan</span>
-              </Button>
-            </Link>
             <Link href={`/dashboard/forum/`}>
-              <Button variant="ghost" size="sm" className="w-9 px-0">
-                <Users className="h-4 w-4" />
-                <span className="sr-only">Forum</span>
-              </Button>
+                <Button variant="ghost" size="sm" className="px-3 flex items-center gap-x-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Forum</span>
+                </Button>
             </Link>
+
             <Link href={`/dashboard/profile/${user}`}>
               <Button variant="ghost" size="sm" className="w-9 px-0">
-                <User className="h-4 w-4" />
+                <SettingsIcon className="h-4 w-4" />
                 <span className="sr-only">Profile</span>
               </Button>
             </Link>
