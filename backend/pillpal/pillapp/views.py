@@ -21,7 +21,6 @@ def csrf_token_view(request):
     return JsonResponse({'detail': 'CSRF cookie set.'})
 class UserAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -63,6 +62,7 @@ class AllUsersView(APIView):
                 'email': user.email,
                 'is_caretaker': user.is_caretaker,
                 'password': user.password,
+                'image': user.image.url if user.image else None,
             }
             for user in users
         ]
@@ -106,7 +106,6 @@ class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
     View to retrieve, update, or delete a single medication for a specific user.
     """
     serializer_class = MedicationSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         """
@@ -115,6 +114,7 @@ class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
         user_id = self.kwargs.get('user_id')
         medication_id = self.kwargs.get('medication_id')
         return get_object_or_404(Medication, id=medication_id, user_id=user_id)
+    
 
 class GetUserById(APIView):
     def get(self, request, user_id, format=None):
@@ -206,6 +206,7 @@ class CareTaker(APIView):
             "last_name": caretaker_user.last_name,
             "email": caretaker_user.email,
             "phone": caretaker_user.phone,
+            'image': caretaker_user.image.url if caretaker_user.image else None,
         }
         return Response(caretaker_data, status=status.HTTP_200_OK)
 
@@ -284,10 +285,91 @@ class UserMedication(APIView): # this wont work, i changed the model - peter
                 'first_dose': medication.first_dose,
                 'second_dose': medication.second_dose,
                 'quantity': medication.quantity,
+                'last_taken': medication.last_taken,
+                'refills_remaining': medication.refills_remaining,
+                'directions': medication.directions,
+                'date_prescribed': medication.date_prescribed,
+
             }
             for medication in medications
         ]
         return Response(medication_data)
+    
+    def post(self, request, user_id, format=None):
+        user = get_object_or_404(User, id=user_id)
+        name = request.data.get('name')
+        dosage = request.data.get('dosage')
+        frequency = request.data.get('frequency')
+        first_dose = request.data.get('first_dose')
+        second_dose = request.data.get('second_dose')
+        quantity = request.data.get('quantity')
+        last_taken = request.data.get('last_taken')
+        refills_remaining = request.data.get('refills_remaining')
+        directions = request.data.get('directions')
+        
+        # Parse the last_taken date (or use current time if not provided)
+        if last_taken:
+            try:
+                last_taken_dt = datetime.fromisoformat(last_taken)
+            except Exception as e:
+                return Response(
+                    {'error': 'Invalid last_taken date format. Please use ISO format.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            last_taken_dt = datetime.now()
+            last_taken = last_taken_dt.isoformat()
+        
+        # Calculate the next due date based on frequency
+        if frequency:
+            frequency = frequency.lower()
+            if frequency == "daily":
+                next_due = last_taken_dt + timedelta(days=1)
+            elif frequency == "weekly":
+                next_due = last_taken_dt + timedelta(weeks=1)
+            elif frequency == "monthly":
+                next_due = last_taken_dt + relativedelta(months=1)
+            else:
+                next_due = last_taken_dt + timedelta(days=1)
+        else:
+            next_due = last_taken_dt + timedelta(days=1)
+        
+        # The computed next due date will be stored in date_prescribed.
+        date_prescribed = next_due.isoformat()
+        
+        medication = Medication.objects.create(
+            user=user,
+            name=name,
+            dosage=dosage,
+            frequency=frequency,
+            first_dose=first_dose,
+            second_dose=second_dose,
+            quantity=quantity,
+            last_taken=last_taken,
+            refills_remaining=refills_remaining,
+            directions=directions,
+            date_prescribed=date_prescribed,
+        )
+        medication.save()
+        return Response(
+            {
+                'success': 'Medication added',
+                'medication': {
+                    'id': medication.id,
+                    'name': medication.name,
+                    'dosage': medication.dosage,
+                    'frequency': medication.frequency,
+                    'first_dose': medication.first_dose,
+                    'second_dose': medication.second_dose,
+                    'quantity': medication.quantity,
+                    'last_taken': medication.last_taken,
+                    'refills_remaining': medication.refills_remaining,
+                    'directions': medication.directions,
+                    'date_prescribed': medication.date_prescribed,
+                }
+            },
+            status=status.HTTP_201_CREATED
+        )
     
 class AnalyzeText(APIView):
     # Remove authentication and permission classes
@@ -295,42 +377,22 @@ class AnalyzeText(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        try:
-            input_text = request.data.get('text', '')
-            print(input_text)
-            if not input_text:
-                return Response(
-                    {'error': 'No text provided'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Perform text analysis
-            analysis_result = analyze.analyze_text(input_text)
-            
-            if not analysis_result:
-                return Response(
-                    {'error': 'Failed to analyze text'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-            return Response({
-                'success': True,
-                'data': analysis_result
-                # Removed user field from response
-            }, status=status.HTTP_200_OK)
-
-        except json.JSONDecodeError:
+        input_text = request.data.get('text', '')
+        print(input_text)
+        if not input_text:
             return Response(
-                {'error': 'Invalid JSON format'},
+                {'error': 'No text provided'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-        except Exception as e:
+
+        # Perform text analysis
+        analysis_result = analyze.analyze_text(input_text)
+        
+        if not analysis_result:
             return Response(
-                {'error': str(e)},
+                {'error': 'Failed to analyze text'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
             
         users = User.objects.all()
         # Exclude sensitive fields like the password from the returned data.

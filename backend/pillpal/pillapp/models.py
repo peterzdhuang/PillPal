@@ -28,4 +28,5 @@ class Medication(models.Model):
     quantity = models.IntegerField(blank=True, null=True, default=0)  # Default value set
     frequency = models.CharField(max_length=255, blank=True, null=True, default='Unknown')  # Default value set
     directions = models.TextField(blank=True, null=True, default='No directions provided')  # Default value set
-    refills_remaining = models.IntegerField(blank=True, null=True, default=0)  # Defau
+    refills_remaining = models.IntegerField(blank=True, null=True, default=0)
+    last_taken = models.DateTimeField(blank=True, null=True, default=None)  

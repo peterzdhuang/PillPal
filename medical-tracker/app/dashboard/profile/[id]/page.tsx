@@ -165,12 +165,6 @@ export default function ProfilePage() {
     }
   }
 
-  /**
-   * CREATE or UPDATE caretaker
-   * If caretaker already exists, we'll PATCH.
-   * If caretaker is null, we'll POST.
-   * (Adjust logic to match your actual backend if needed.)
-   */
   const handleAddOrUpdateCaretaker = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -425,12 +419,23 @@ export default function ProfilePage() {
                     <div className="mt-4 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <Avatar>
+                        <Avatar className="h-24 w-24">
+                          {caretaker.image ? (
+                            <AvatarImage
+                              src={`http://localhost:8000${caretaker.image}`}
+                              alt="Profile"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.src = "/placeholder.svg"
+                              }}
+                            />
+                          ) : (
                             <AvatarFallback>
-                              {caretaker.first_name?.[0] ?? "C"}
-                              {caretaker.last_name?.[0] ?? "T"}
+                              {caretaker.first_name?.charAt(0)}
+                              {caretaker.last_name?.charAt(0)}
                             </AvatarFallback>
-                          </Avatar>
+                          )}
+                        </Avatar>
                           <div>
                             <p className="font-medium">
                               {caretaker.first_name} {caretaker.last_name}
