@@ -21,15 +21,16 @@ export default function SignUpPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     try {
-      const response = await axios.post("http://localhost:8000/api/signup/", {
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        password,
-        confirm_password: confirmPassword,
-        is_caretaker: isCaretaker,
-      })
-      router.push("/login")
+        const response = await axios.post("http://localhost:8000/api/signup/", {
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password,
+            confirm_password: confirmPassword,
+            is_caretaker: isCaretaker,
+        })
+        console.log(response)
+        router.push("/login")
     } catch (error) {
       console.error(error)
     }
