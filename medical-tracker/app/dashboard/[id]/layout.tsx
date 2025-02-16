@@ -20,31 +20,29 @@ export default function DashboardLayout({
   else {
     console.log(user)
   }
-
-  const userid = user.id || null;
   
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
-          <Link href={`/dashboard/${userid}`} className="flex items-center space-x-2">
+          <Link href={`/dashboard/${user}`} className="flex items-center space-x-2">
             <PillIcon className="h-6 w-6" />
             <span className="font-bold">MedTrack</span>
           </Link>
           <nav className="flex flex-1 items-center justify-end space-x-4">
-            <Link href={`/dashboard/${userid}/scan`}>
+            <Link href={`/dashboard/scan/${user}`}>
               <Button variant="ghost" size="sm" className="w-9 px-0">
                 <Scan className="h-4 w-4" />
                 <span className="sr-only">Scan</span>
               </Button>
             </Link>
-            <Link href={`dashboard/${userid}/community`}>
+            <Link href={`dashboard/community/${user}`}>
               <Button variant="ghost" size="sm" className="w-9 px-0">
                 <Users className="h-4 w-4" />
                 <span className="sr-only">Community</span>
               </Button>
             </Link>
-            <Link href={`/dashboard/${userid}/profile`}>
+            <Link href={`/dashboard/profile/${user}`}>
               <Button variant="ghost" size="sm" className="w-9 px-0">
                 <User className="h-4 w-4" />
                 <span className="sr-only">Profile</span>

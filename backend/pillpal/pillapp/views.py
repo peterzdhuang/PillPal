@@ -30,12 +30,8 @@ class LoginAuthView(APIView):
         try:
             user = User.objects.get(email=username)  # Assuming username is the email
             if user.password == password:  # Check if password matches
-                content = {
-                    'user': str(user),
-                    'is_caretaker': user.is_caretaker,
-                    'user_id': str(user.id),
-                }
-                return Response(content, status=status.HTTP_200_OK)
+                serializer = UserSerializer(user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
@@ -59,6 +55,19 @@ class AllUsersView(APIView):
             for user in users
         ]
         return Response(user_data)
+    
+class GetUserById(APIView):
+    def get(self, request, user_id, format=None):
+        user = User.objects.get(id=user_id)
+        user_data = {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'is_caretaker': user.is_caretaker,
+            'password': user.password,
+        }
+        return Response(user_data)
 
 class UserMedication(APIView):
     def get(self, request, user_id, format=None):
@@ -77,3 +86,5 @@ class UserMedication(APIView):
             for medication in medications
         ]
         return Response(medication_data)
+    
+    
