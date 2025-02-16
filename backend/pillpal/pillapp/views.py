@@ -25,6 +25,14 @@ class UserAuthView(APIView):
         user.save()
         return Response(status=200)
     
+class UserSingleView(generics.RetrieveUpdateDestroyAPIView):
+    
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        user_id = self.kwargs.get('user_id')
+        return get_object_or_404(User, id=user_id)
 
 class AllMedicationsView(generics.ListCreateAPIView):
     """
