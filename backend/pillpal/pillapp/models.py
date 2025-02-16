@@ -30,3 +30,12 @@ class Medication(models.Model):
     directions = models.TextField(blank=True, null=True, default='No directions provided')  # Default value set
     refills_remaining = models.IntegerField(blank=True, null=True, default=0)
     last_taken = models.DateTimeField(blank=True, null=True, default=None)  
+
+class CaretakerVerification(models.Model):
+    token = models.CharField(max_length=255, unique=True)
+    caretaker_email = models.EmailField()
+    patient_email = models.EmailField()
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.patient_email} verified by {self.caretaker_email}"
