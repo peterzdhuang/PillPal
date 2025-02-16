@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import axios from "axios"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function SignUpPage() {
   const [firstName, setFirstName] = useState<string>("")
@@ -14,6 +15,8 @@ export default function SignUpPage() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [confirmPassword, setConfirmPassword] = useState<string>("")
+  const [isCaretaker, setIsCaretaker] = useState<boolean>(false)
+  const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -23,8 +26,10 @@ export default function SignUpPage() {
         last_name: lastName,
         email,
         password,
-        confirm_password: confirmPassword
+        confirm_password: confirmPassword,
+        is_caretaker: isCaretaker,
       })
+      router.push("/login")
     } catch (error) {
       console.error(error)
     }
@@ -96,7 +101,11 @@ export default function SignUpPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="caretaker" />
+                <Checkbox
+                  id="caretaker"
+                  checked={isCaretaker}
+                  onCheckedChange={(checked) => setIsCaretaker(checked === true)}
+                />
                   <label htmlFor="caretaker" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     I am a caretaker
                   </label>
@@ -105,9 +114,9 @@ export default function SignUpPage() {
                   <Checkbox id="terms" required />
                   <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     I agree to the{" "}
-                    <Link href="/terms" className="text-primary hover:underline">
+                    <div className="text-primary hover:underline inline-block">
                       terms and conditions
-                    </Link>
+                    </div>
                   </label>
                 </div>
               </div>
