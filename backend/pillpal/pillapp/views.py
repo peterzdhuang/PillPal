@@ -27,13 +27,7 @@ class UserAuthView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            # Ensure the password is properly hashed.
-            # For example, if the serializer doesn't call set_password:
-            # user.set_password(serializer.validated_data["password"])
-            # user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # Log errors for debugging (optional)
-        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AllUsersView(APIView):
@@ -54,3 +48,21 @@ class AllUsersView(APIView):
             for user in users
         ]
         return Response(user_data)
+
+class UserMedication(APIView):
+    def get(self, request, user_id, format=None):
+        user = User.objects.get(id=user_id)
+        medications = user.medications.all()
+        medication_data = [
+            {
+                'id': medication.id,
+                'name': medication.name,
+                'dosage': medication.dosage,
+                'frequency': medication.frequency,
+                'first_dose': medication.first_dose,
+                'second_dose': medication.second_dose,
+                'quantity': medication.quantity,
+            }
+            for medication in medications
+        ]
+        return Response(medication_data)
