@@ -68,6 +68,7 @@ class GetUserById(APIView):
             'is_caretaker': user.is_caretaker,
             'password': user.password,
             'image': user.image.url if user.image else None,
+            'notifications': user.notifications,
         }
         return Response(user_data)
     
@@ -84,6 +85,7 @@ class GetUserById(APIView):
         new_password = request.data.get('password')  # New password to set
         current_password = request.data.get('current_password')  # Current password for verification
         image = request.data.get('image')  # Image file
+        notifications = request.data.get('notifications')  # Notification settings
 
         # Update profile fields if provided.
         if firstname is not None:
@@ -96,6 +98,14 @@ class GetUserById(APIView):
             user.phone = phone
         if image is not None:
             user.image = image
+        if notifications is not None:
+            if isinstance(notifications, str):
+                if notifications.lower() == "true":
+                    user.notifications = True
+                else:
+                    user.notifications = False
+            else:
+                user.notifications = notifications
 
         # Update password only if a new password was provided.
         if new_password:

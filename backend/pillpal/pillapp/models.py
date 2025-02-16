@@ -10,6 +10,7 @@ class User(models.Model):
     is_caretaker = models.BooleanField(default=False)
     patient_email = models.EmailField(null=True, blank=True)
     followers = models.ManyToManyField('self', symmetrical=False, default=None, blank=True)
+    notifications = models.BooleanField(default=True)
 
 class Medication(models.Model):
     FREQUENCY_CHOICES = [
