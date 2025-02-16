@@ -1,105 +1,218 @@
-import { Bell, Calendar, PlusCircle } from "lucide-react"
+"use client"
 
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { Calendar, PlusCircle, Pill, RefreshCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useGlobalContext } from "@/app/layout"
 import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+
+interface Medication {
+  id?: number
+  user: string
+  pharmacyName: string
+  pharmacyAddress: string
+  pillName: string
+  date: string
+  numberOfPills: number
+  frequency: string
+  directions: string
+  refills: number
+}
 
 export default function DashboardPage() {
+  const [medications, setMedications] = useState<Medication[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const user = useGlobalContext()
+
+  useEffect(() => {
+    const fetchMedications = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/medications/${user.user}`)
+        setMedications(response.data)
+      } catch (err) {
+        setError("Failed to fetch medications")
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMedications()
+  }, [user.user])
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-gray-600">Loading...</p>
+      </div>
+    )
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-red-600">{error}</p>
+      </div>
+    )
+
+  const todayMedications = medications.filter((med) => {
+    const medDate = new Date(med.date)
+    const today = new Date()
+    return medDate.toDateString() === today.toDateString()
+  })
+
+  const pillCountData = medications.map((med) => ({
+    name: med.pillName,
+    pills: med.numberOfPills,
+  }))
+
   return (
-    <div className="container py-6">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Medication</CardTitle>
-            <Bell className="h-4 w-4 text-muted-foreground" />
+    <div className="container mx-auto px-4 py-10">
+      {/* Dashboard Header */}
+      <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Medication Dashboard</h1>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Medication
+        </Button>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {/* Medication Overview Card */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Medication Overview</CardTitle>
+            <CardDescription>Your current medication status</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2:00 PM</div>
-            <p className="text-xs text-muted-foreground">Metformin 500mg</p>
-            <Button className="mt-4 w-full" size="sm">
-              Mark as Taken
-            </Button>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={pillCountData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="pills" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* Today's Schedule Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Progress</CardTitle>
+            <CardTitle className="text-sm font-medium">Today's Schedule</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">67%</div>
-            <Progress value={67} className="mt-2" />
-            <p className="mt-2 text-xs text-muted-foreground">4 of 6 medications taken</p>
+            <div className="text-2xl font-bold">{todayMedications.length} Medications</div>
+            <p className="text-xs text-muted-foreground">
+              {todayMedications.length === 0 ? "No medications scheduled for today" : "Scheduled for today"}
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Refills Needed</CardTitle>
-            <PlusCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">Medications running low</p>
-          </CardContent>
-        </Card>
-      </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Schedule</CardTitle>
-            <CardDescription>Your medication schedule for today</CardDescription>
+        {/* Upcoming Schedule Card */}
+        <Card className="col-span-2">
+          <CardHeader className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-6 w-6 text-blue-500" />
+              <CardTitle>Upcoming Schedule</CardTitle>
+            </div>
+            <CardDescription>Today's medications</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {todayMedications.length === 0 ? (
+              <p className="text-muted-foreground">No scheduled medications for today.</p>
+            ) : (
+              todayMedications.map((med, index) => (
+                <div
+                  key={med.id || index}
+                  className="flex items-center justify-between space-x-4 rounded-md border p-4"
+                >
+                  <div className="space-y-1">
+                    <p className="font-medium">{med.pillName}</p>
+                    <p className="text-sm text-muted-foreground">{med.frequency}</p>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-sm text-muted-foreground">{med.date}</div>
+                    <Button size="sm">Take Now</Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Medication Details Card */}
+        <Card className="col-span-2 lg:col-span-3">
+          <CardHeader className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Pill className="h-6 w-6 text-green-500" />
+              <CardTitle>Medication Details</CardTitle>
+            </div>
+            <CardDescription>Your current prescriptions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[
-                { time: "8:00 AM", name: "Aspirin", taken: true },
-                { time: "2:00 PM", name: "Metformin", taken: false },
-                { time: "8:00 PM", name: "Vitamin D", taken: false },
-              ].map((med, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`h-2 w-2 rounded-full ${med.taken ? "bg-green-500" : "bg-gray-300"}`} />
-                    <div>
-                      <p className="font-medium">{med.time}</p>
-                      <p className="text-sm text-muted-foreground">{med.name}</p>
+            <Tabs defaultValue="list" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="list">List View</TabsTrigger>
+                <TabsTrigger value="grid">Grid View</TabsTrigger>
+              </TabsList>
+              <TabsContent value="list" className="space-y-4">
+                {medications.map((med, index) => (
+                  <div
+                    key={med.id || index}
+                    className="flex items-center justify-between space-x-4 rounded-md border p-4"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium">{med.pillName}</p>
+                      <p className="text-sm text-muted-foreground">{med.pharmacyName}</p>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm">
+                        <p>{med.numberOfPills} pills</p>
+                        <p>{med.refills} refills</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <RefreshCcw className="mr-2 h-4 w-4" />
+                        Refill
+                      </Button>
                     </div>
                   </div>
-                  {!med.taken && (
-                    <Button variant="outline" size="sm">
-                      Take Now
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Medication List</CardTitle>
-            <CardDescription>Your current medications</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Metformin", dosage: "500mg", remaining: 45 },
-                { name: "Aspirin", dosage: "81mg", remaining: 60 },
-                { name: "Vitamin D", dosage: "2000 IU", remaining: 30 },
-              ].map((med, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{med.name}</p>
-                    <p className="text-sm text-muted-foreground">{med.dosage}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{med.remaining} pills</p>
-                    <p className="text-sm text-muted-foreground">remaining</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </TabsContent>
+              <TabsContent value="grid" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {medications.map((med, index) => (
+                  <Card key={med.id || index}>
+                    <CardHeader>
+                      <CardTitle>{med.pillName}</CardTitle>
+                      <CardDescription>{med.pharmacyName}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Pills remaining:</span>
+                          <span>{med.numberOfPills}</span>
+                        </div>
+                        <Progress value={(med.numberOfPills / 30) * 100} className="h-2" />
+                        <div className="flex justify-between items-center">
+                          <Badge variant={med.refills > 0 ? "secondary" : "destructive"}>
+                            {med.refills} refill{med.refills !== 1 && "s"}
+                          </Badge>
+                          <Button variant="outline" size="sm">
+                            <RefreshCcw className="mr-2 h-4 w-4" />
+                            Refill
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
