@@ -1,8 +1,7 @@
-'use client'
-import { Link } from "lucide-react";
+"use client";
+
 import { ArrowLeft, Camera, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation'
 import {
   Card,
   CardContent,
@@ -20,17 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TextScanner, { MedicationFields } from "@/components/TextExtract";
 import axios from "axios";
 import { useGlobalContext } from "@/app/layout";
+import { useRouter } from "next/navigation";
 
 export default function ScanPage() {
- 
-
   const [showScanner, setShowScanner] = useState(false);
 
-  // State for each form field
+  // Local form fields
   const [pharmacyName, setPharmacyName] = useState("");
   const [pharmacyAddress, setPharmacyAddress] = useState("");
   const [pillName, setPillName] = useState("");
@@ -39,41 +37,46 @@ export default function ScanPage() {
   const [frequency, setFrequency] = useState("");
   const [directions, setDirections] = useState("");
   const [refills, setRefills] = useState("");
-  const {user} = useGlobalContext(); 
-  const router = useRouter()
 
+  const { user } = useGlobalContext(); 
+  const router = useRouter();
 
+  // -------------------------
+  // Save Medication
+  // -------------------------
   const handleSaveMedication = async () => {
-    // Create medication data object
     const medicationData = {
-      user,
-      pharmacyName,
-      pharmacyAddress,
-      pillName,
-      date,
-      numberOfPills: parseInt(numberOfPills, 10),
-      frequency,
-      directions,
-      refills: parseInt(refills, 10),
+      user: user, // or user.id if "user" is an object
+      name: pillName || "Unknown",
+      pharmacy_name: pharmacyName || null,
+      pharmacy_address: pharmacyAddress || null,
+      date_prescribed: date || null,
+      quantity: numberOfPills ? parseInt(numberOfPills, 10) : 0,
+      frequency: frequency || null,
+      directions: directions || null,
+      refills_remaining: refills ? parseInt(refills, 10) : 0,
     };
 
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/medications/', 
+        "http://127.0.0.1:8000/api/medications/",
         medicationData,
         {
-          headers: {
-            'Content-Type': 'application/json',
-          }
+          headers: { "Content-Type": "application/json" },
         }
       );
-      router.push(`/dashboard/${user}`)
-      console.log('Medication saved:', response.data);
+      console.log("Medication saved:", response.data);
+
+      // Redirect to dashboard after saving
+      router.push(`/dashboard/${user}`);
     } catch (error) {
-      console.error('Error saving medication:', error);
+      console.error("Error saving medication:", error);
     }
   };
-  // Callback to handle the fields returned from the backend
+
+  // -------------------------
+  // Handle OCR Text Extracted
+  // -------------------------
   const handleTextExtracted = (fields: MedicationFields) => {
     setPharmacyName(fields.pharmacyName || "");
     setPharmacyAddress(fields.pharmacyAddress || "");
@@ -83,22 +86,20 @@ export default function ScanPage() {
     setFrequency(fields.frequency || "");
     setDirections(fields.directions || "");
     setRefills(fields.refills || "");
-    // Optionally close the scanner after extraction
     setShowScanner(false);
   };
-  
 
   return (
     <div className="container max-w-xl py-6">
       <div className="flex items-center mb-4">
         <button
-          onClick={() => router.back()} // Navigates back to the previous page
+          onClick={() => router.back()}
           className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back</span>
         </button>
-      </div>      
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Scan Medication Label</CardTitle>
@@ -108,6 +109,7 @@ export default function ScanPage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {/* Camera / Scanner */}
           <div
             onClick={() => setShowScanner(true)}
             className="relative aspect-video overflow-hidden rounded-lg bg-muted"
@@ -183,15 +185,22 @@ export default function ScanPage() {
 
             <div className="space-y-2">
               <Label htmlFor="frequency">Frequency</Label>
-              <Select value={frequency} onValueChange={(value) => setFrequency(value)}>
+              <Select
+                value={frequency}
+                onValueChange={(value) => setFrequency(value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select frequency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Once daily">Once daily</SelectItem>
                   <SelectItem value="Twice daily">Twice daily</SelectItem>
-                  <SelectItem value="Three times daily">Three times daily</SelectItem>
-                  <SelectItem value="Four times daily">Four times daily</SelectItem>
+                  <SelectItem value="Three times daily">
+                    Three times daily
+                  </SelectItem>
+                  <SelectItem value="Four times daily">
+                    Four times daily
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -220,7 +229,7 @@ export default function ScanPage() {
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => router.back()}>
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
