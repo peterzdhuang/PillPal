@@ -1,0 +1,38 @@
+[
+    {
+        "model": "pillapp.user",
+        "pk": 1,
+        "fields": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "password": "securepassword123",
+            "is_caretaker": false,
+            "patient_email": "jane.doe@example.com"
+        }
+    },
+    {
+        "model": "pillapp.user",
+        "pk": 2,
+        "fields": {
+            "first_name": "Alice",
+            "last_name": "Smith",
+            "email": "alice.smith@example.com",
+            "password": "mypassword456",
+            "is_caretaker": true,
+            "patient_email": null
+        }
+    },
+    {
+        "model": "pillapp.user",
+        "pk": 3,
+        "fields": {
+            "first_name": "Michael",
+            "last_name": "Brown",
+            "email": "michael.brown@example.com",
+            "password": "anotherpassword789",
+            "is_caretaker": false,
+            "patient_email": "jackson.brown@example.com"
+        }
+    }
+]

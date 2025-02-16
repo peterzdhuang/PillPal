@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { PillIcon as Pills, Bell, Calendar, Users } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 
 export default function Home() {

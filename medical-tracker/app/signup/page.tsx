@@ -1,12 +1,35 @@
+'use client'
 import Link from "next/link"
 import { ArrowLeft, Check } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import axios from "axios"
+import { useState } from "react"
 
 export default function SignUpPage() {
+  const [firstName, setFirstName] = useState<string>("")
+  const [lastName, setLastName] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    try {
+      const response = await axios.post("http://localhost:8000/api/signup/", {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        confirm_password: confirmPassword
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <div className="flex min-h-screen">
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
@@ -27,33 +50,26 @@ export default function SignUpPage() {
             </p>
           </div>
           <div className="mt-6">
-            <form action="#" className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="first-name">First name</Label>
-                  <Input id="first-name" name="first-name" required className="block w-full" />
+                  <Input id="first-name" name="first-name" required className="block w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="last-name">Last name</Label>
-                  <Input id="last-name" name="last-name" required className="block w-full" />
+                  <Input id="last-name" name="last-name" required className="block w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
-                <Input id="email" name="email" type="email" autoComplete="email" required className="block w-full" />
+                <Input id="email" name="email" type="email" autoComplete="email" required className="block w-full" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  className="block w-full"
-                />
+                <Input id="password" name="password" type="password" autoComplete="new-password" required className="block w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
                 <div className="space-y-1 text-sm">
                   <p className="text-muted-foreground">Password must contain:</p>
                   <div className="grid gap-2">
@@ -75,32 +91,19 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirm password</Label>
-                <Input
-                  id="confirm-password"
-                  name="confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  className="block w-full"
-                />
+                <Input id="confirm-password" name="confirm-password" type="password" autoComplete="new-password" required className="block w-full" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox id="caretaker" />
-                  <label
-                    htmlFor="caretaker"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+                  <label htmlFor="caretaker" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     I am a caretaker
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="terms" required />
-                  <label
-                    htmlFor="terms"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+                  <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     I agree to the{" "}
                     <Link href="/terms" className="text-primary hover:underline">
                       terms and conditions
@@ -117,11 +120,7 @@ export default function SignUpPage() {
         </div>
       </div>
       <div className="relative hidden w-0 flex-1 lg:block">
-        <img
-          className="absolute inset-0 h-full w-full object-cover"
-          src="/placeholder.svg?height=1080&width=1920"
-          alt="Medical professional helping patient"
-        />
+        <img className="absolute inset-0 h-full w-full object-cover" src="/placeholder.svg?height=1080&width=1920" alt="Medical professional helping patient" />
       </div>
     </div>
   )

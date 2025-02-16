@@ -5,9 +5,9 @@ class User(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
-    is_caretaker = models.BooleanField()
+    is_caretaker = models.BooleanField(default=False)
     patient_email = models.EmailField(null=True, blank=True)
-    followers = models.ManyToManyField('self', symmetrical=False)
+    followers = models.ManyToManyField('self', symmetrical=False, default=None, blank=True)
 
 class Medication(models.Model):
     FREQUENCY_CHOICES = [
@@ -27,4 +27,11 @@ class Medication(models.Model):
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, verbose_name="Frequency")
     directions = models.TextField(verbose_name="Directions", help_text="How and when to take the medication")
     refills = models.IntegerField(verbose_name="Refills Remaining", default=0)
- 
+    """
+
+    if they miss the morning 
+    
+    first dosage = time 
+
+    
+    """

@@ -1,0 +1,262 @@
+[
+    {
+        "model": "pillapp.medication",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "name": "Ibuprofen",
+            "dosage": "200mg",
+            "frequency": "twice",
+            "first_dose": "08:00:00",
+            "second_dose": "20:00:00",
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "name": "Vitamin D",
+            "dosage": "1000 IU",
+            "frequency": "once",
+            "first_dose": "09:00:00",
+            "second_dose": null,
+            "quantity": 60
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 3,
+        "fields": {
+            "user": 2,
+            "name": "Paracetamol",
+            "dosage": "500mg",
+            "frequency": "thrice",
+            "first_dose": "07:00:00",
+            "second_dose": "14:00:00",
+            "quantity": 20
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 4,
+        "fields": {
+            "user": 2,
+            "name": "Cough Syrup",
+            "dosage": "10ml",
+            "frequency": "twice",
+            "first_dose": "10:00:00",
+            "second_dose": "22:00:00",
+            "quantity": 15
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 5,
+        "fields": {
+            "user": 3,
+            "name": "Aspirin",
+            "dosage": "81mg",
+            "frequency": "once",
+            "first_dose": "07:30:00",
+            "second_dose": null,
+            "quantity": 90
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 6,
+        "fields": {
+            "user": 3,
+            "name": "Metformin",
+            "dosage": "500mg",
+            "frequency": "twice",
+            "first_dose": "08:00:00",
+            "second_dose": "18:00:00",
+            "quantity": 60
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 7,
+        "fields": {
+            "user": 1,
+            "name": "Lisinopril",
+            "dosage": "10mg",
+            "frequency": "once",
+            "first_dose": "07:00:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 8,
+        "fields": {
+            "user": 2,
+            "name": "Amoxicillin",
+            "dosage": "500mg",
+            "frequency": "thrice",
+            "first_dose": "08:00:00",
+            "second_dose": "16:00:00",
+            "quantity": 21
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 9,
+        "fields": {
+            "user": 3,
+            "name": "Prednisone",
+            "dosage": "20mg",
+            "frequency": "once",
+            "first_dose": "09:00:00",
+            "second_dose": null,
+            "quantity": 10
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 10,
+        "fields": {
+            "user": 1,
+            "name": "Simvastatin",
+            "dosage": "40mg",
+            "frequency": "once",
+            "first_dose": "21:00:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 11,
+        "fields": {
+            "user": 2,
+            "name": "Cetirizine",
+            "dosage": "10mg",
+            "frequency": "once",
+            "first_dose": "10:00:00",
+            "second_dose": null,
+            "quantity": 14
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 12,
+        "fields": {
+            "user": 3,
+            "name": "Albuterol",
+            "dosage": "90mcg",
+            "frequency": "as needed",
+            "first_dose": null,
+            "second_dose": null,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 13,
+        "fields": {
+            "user": 1,
+            "name": "Levothyroxine",
+            "dosage": "75mcg",
+            "frequency": "once",
+            "first_dose": "06:30:00",
+            "second_dose": null,
+            "quantity": 90
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 14,
+        "fields": {
+            "user": 2,
+            "name": "Warfarin",
+            "dosage": "5mg",
+            "frequency": "once",
+            "first_dose": "18:00:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 15,
+        "fields": {
+            "user": 3,
+            "name": "Omeprazole",
+            "dosage": "20mg",
+            "frequency": "once",
+            "first_dose": "07:00:00",
+            "second_dose": null,
+            "quantity": 28
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 16,
+        "fields": {
+            "user": 1,
+            "name": "Losartan",
+            "dosage": "50mg",
+            "frequency": "once",
+            "first_dose": "09:00:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 17,
+        "fields": {
+            "user": 2,
+            "name": "Hydrochlorothiazide",
+            "dosage": "25mg",
+            "frequency": "once",
+            "first_dose": "07:30:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 18,
+        "fields": {
+            "user": 3,
+            "name": "Gabapentin",
+            "dosage": "300mg",
+            "frequency": "thrice",
+            "first_dose": "08:00:00",
+            "second_dose": "16:00:00",
+            "quantity": 60
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 19,
+        "fields": {
+            "user": 1,
+            "name": "Melatonin",
+            "dosage": "5mg",
+            "frequency": "once",
+            "first_dose": "22:00:00",
+            "second_dose": null,
+            "quantity": 90
+        }
+    },
+    {
+        "model": "pillapp.medication",
+        "pk": 20,
+        "fields": {
+            "user": 2,
+            "name": "Fluoxetine",
+            "dosage": "20mg",
+            "frequency": "once",
+            "first_dose": "08:00:00",
+            "second_dose": null,
+            "quantity": 30
+        }
+    }
+]
