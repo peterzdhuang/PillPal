@@ -20,13 +20,12 @@ class Medication(models.Model):
         ('custom', 'Custom'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medications")
-    name = models.CharField(max_length=255, verbose_name="Medication Name")
-    dosage = models.CharField(max_length=50, verbose_name="Dosage", help_text="e.g. 500mg")
-    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, verbose_name="Frequency")
-    first_dose = models.TimeField(null=True, blank=True, verbose_name="First Dose")
-    second_dose = models.TimeField(null=True, blank=True, verbose_name="Second Dose")
-    quantity = models.IntegerField(verbose_name="Quantity", help_text="Number of pills")
-
-    def __str__(self):
-        return f"{self.name} - {self.dosage}"
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medications')
+    pharmacy_name = models.CharField(max_length=255)
+    pharmacy_address = models.TextField()
+    name = models.CharField(max_length=255)  # pillName from frontend
+    date_prescribed = models.DateField()     # date from frontend
+    quantity = models.IntegerField()         # numberOfPills from frontend
+    frequency = models.CharField(max_length=255)
+    directions = models.TextField()
+    refills_remaining = models.IntegerField()  # refills from frontend
