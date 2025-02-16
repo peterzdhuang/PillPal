@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from .models import Medication, User
-from .serializer import MedicationSerializer, UserSerializer
+from .serializers import MedicationSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -25,6 +25,14 @@ class UserAuthView(APIView):
         user.save()
         return Response(status=200)
     
+class UserSingleView(generics.RetrieveUpdateDestroyAPIView):
+    
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        user_id = self.kwargs.get('user_id')
+        return get_object_or_404(User, id=user_id)
 
 class AllMedicationsView(generics.ListCreateAPIView):
     """
