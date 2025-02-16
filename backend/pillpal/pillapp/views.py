@@ -1,34 +1,126 @@
 import json
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
-from .models import Medication, User
+from .models import Medication, User, CaretakerVerification
 from .serializers import MedicationSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import AllowAny
-from rest_framework import status
 from django.contrib.auth import authenticate, login
 from .scanner import analyze
-from rest_framework import status
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework.response import Response
 from django.http import JsonResponse
+from django.core import signing
+
+
+# Import Django's email functions and settings
+from django.core.mail import send_mail
+from django.conf import settings
 
 @ensure_csrf_cookie
 def csrf_token_view(request):
     return JsonResponse({'detail': 'CSRF cookie set.'})
+
+def generate_verification_token(caretaker_email, patient_email):
+    data = {
+        "caretaker_email": caretaker_email,
+        "patient_email": patient_email,
+    }
+    # 'verify-patient' is a salt that adds an extra layer of security.
+    token = signing.dumps(data, salt="verify-patient")
+    return token
+
+
 class UserAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [AllowAny]  # Allow anyone to sign up
 
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            
+            # Check for a provided patient_email in the request data
+            caretaker_email = request.data.get("caretaker_email")
+            if caretaker_email:
+                # Generate token
+                verification_token = generate_verification_token(user.email, caretaker_email)
+
+                # Save the token in your verification model (or use it directly in the email)
+                CaretakerVerification.objects.create(
+                    token=verification_token,
+                    caretaker_email=user.email,
+                    patient_email=caretaker_email
+                )
+
+                # Compose your email as before and send it:
+                verification_link = f"http://localhost:8000/api/verify_patient/?token={verification_token}"
+                email_subject = "Patient Verification Request"
+                email_message = (
+                    f"Hello,\n\n"
+                    f"{user.first_name} {user.last_name} has requested to add you as a patient. "
+                    f"Please click the following link to verify your consent: {verification_link}\n\n"
+                    f"Thank you!"
+                )
+                send_mail(
+                    email_subject,
+                    email_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [caretaker_email],
+                    fail_silently=False,
+                )
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class VerifyPatientView(APIView):
+    permission_classes = []  # Allow any user (even if unauthenticated) to verify
 
+    def get(self, request, format=None):
+        token = request.GET.get("token")
+        if not token:
+            return Response({"error": "Missing token."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verify and decode the token using Django's signing module.
+        try:
+            # 'verify-patient' is the salt we used when generating the token.
+            # max_age sets an expiration time in seconds (e.g. 86400 = 24 hours)
+            data = signing.loads(token, salt="verify-patient", max_age=86400)
+        except signing.SignatureExpired:
+            return Response({"error": "Token expired."}, status=status.HTTP_400_BAD_REQUEST)
+        except signing.BadSignature:
+            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Extract the emails from the decoded token.
+        caretaker_email = data.get("caretaker_email")
+        patient_email = data.get("patient_email")
+        
+        # Optionally, if you have a verification record in your database, check it.
+        try:
+            verification = CaretakerVerification.objects.get(token=token)
+            if verification.is_verified:
+                return Response({"detail": "This verification has already been completed."}, status=status.HTTP_400_BAD_REQUEST)
+        except CaretakerVerification.DoesNotExist:
+            verification = None
+        
+        # Find the patient user by their email.
+        try:
+            patient = User.objects.get(email=patient_email)
+        except User.DoesNotExist:
+            return Response({"error": "Patient user not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Update the patient's caretaker_email field.
+        patient.caretaker_email = caretaker_email
+        patient.save()
+        
+        # If a verification record exists, mark it as verified.
+        if verification:
+            verification.is_verified = True
+            verification.save()
+        
+        return Response({"detail": "Patient verified successfully."}, status=status.HTTP_200_OK)
+    
 class LoginAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [AllowAny]
