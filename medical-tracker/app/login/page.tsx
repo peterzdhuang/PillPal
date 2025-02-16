@@ -25,11 +25,11 @@ export default function LoginPage() {
       })
 
       if (response.status === 200) {
-        const userId = response.data.user_id
+        const userId = response.data.id
         // Update global context with user data (you could update with response.data.user or any other field)
-        updateUser(response.data.user)  
+        updateUser(userId);
         router.push(`/dashboard/${userId}`)
-        console.log(response.data)
+
       }
     } catch (error) {
       console.error("Login failed", error)
