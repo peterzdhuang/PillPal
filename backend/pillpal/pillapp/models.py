@@ -18,12 +18,13 @@ class Medication(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medications")
+    pharmacy_name = models.CharField(max_length=255, verbose_name="Pharmacy Name")
+    address = models.CharField(max_length=255, verbose_name="Pharmacy Address")
     name = models.CharField(max_length=255, verbose_name="Medication Name")
     dosage = models.CharField(max_length=50, verbose_name="Dosage", help_text="e.g. 500mg")
-    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, verbose_name="Frequency")
-    first_dose = models.TimeField(null=True, blank=True, verbose_name="First Dose")
-    second_dose = models.TimeField(null=True, blank=True, verbose_name="Second Dose")
+    date = models.DateField(verbose_name="Date Prescribed")
     quantity = models.IntegerField(verbose_name="Quantity", help_text="Number of pills")
-
-    def __str__(self):
-        return f"{self.name} - {self.dosage}"
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, verbose_name="Frequency")
+    directions = models.TextField(verbose_name="Directions", help_text="How and when to take the medication")
+    refills = models.IntegerField(verbose_name="Refills Remaining", default=0)
+ 
