@@ -11,4 +11,5 @@ urlpatterns = [
     # medication endpoints
     path('api/users/', views.AllUsersView.as_view(), name='users'),
     path('api/user/<int:user_id>/', views.GetUserById.as_view(), name='user'),
+    path('api/scan/', views.AnalyzeText.as_view(), name='scan'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
