@@ -36,10 +36,10 @@ export default function DashboardLayout({
                 <span className="sr-only">Scan</span>
               </Button>
             </Link>
-            <Link href={`dashboard/community/${user}`}>
+            <Link href={`/dashboard/forum/`}>
               <Button variant="ghost" size="sm" className="w-9 px-0">
                 <Users className="h-4 w-4" />
-                <span className="sr-only">Community</span>
+                <span className="sr-only">Forum</span>
               </Button>
             </Link>
             <Link href={`/dashboard/profile/${user}`}>
