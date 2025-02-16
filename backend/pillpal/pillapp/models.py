@@ -21,11 +21,11 @@ class Medication(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medications')
-    pharmacy_name = models.CharField(max_length=255)
-    pharmacy_address = models.TextField()
-    name = models.CharField(max_length=255)  # pillName from frontend
-    date_prescribed = models.DateField()     # date from frontend
-    quantity = models.IntegerField()         # numberOfPills from frontend
-    frequency = models.CharField(max_length=255)
-    directions = models.TextField()
-    refills_remaining = models.IntegerField()  # refills from frontend
+    pharmacy_name = models.CharField(max_length=255, blank=True, null=True)  # Optional field
+    pharmacy_address = models.TextField(blank=True, null=True)  # Optional field
+    name = models.CharField(max_length=255, blank=True, null=True, default='Unknown')  # Default value set
+    date_prescribed = models.DateField(blank=True, null=True, default=None)  # Default value set
+    quantity = models.IntegerField(blank=True, null=True, default=0)  # Default value set
+    frequency = models.CharField(max_length=255, blank=True, null=True, default='Unknown')  # Default value set
+    directions = models.TextField(blank=True, null=True, default='No directions provided')  # Default value set
+    refills_remaining = models.IntegerField(blank=True, null=True, default=0)  # Defau
