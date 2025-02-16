@@ -165,12 +165,6 @@ export default function ProfilePage() {
     }
   }
 
-  /**
-   * CREATE or UPDATE caretaker
-   * If caretaker already exists, we'll PATCH.
-   * If caretaker is null, we'll POST.
-   * (Adjust logic to match your actual backend if needed.)
-   */
   const handleAddOrUpdateCaretaker = async (e: React.FormEvent) => {
     e.preventDefault()
 

@@ -21,7 +21,6 @@ def csrf_token_view(request):
     return JsonResponse({'detail': 'CSRF cookie set.'})
 class UserAuthView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -115,6 +114,7 @@ class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
         user_id = self.kwargs.get('user_id')
         medication_id = self.kwargs.get('medication_id')
         return get_object_or_404(Medication, id=medication_id, user_id=user_id)
+    
 
 class GetUserById(APIView):
     def get(self, request, user_id, format=None):
