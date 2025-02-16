@@ -32,7 +32,6 @@ export default function SignUpPage() {
       console.log(response); // Log the response
 
       router.push("/login");
-      
     } catch (error) {
       console.error("Error during sign up:", error);
     }
