@@ -216,7 +216,7 @@ class CareTaker(APIView):
         user = get_object_or_404(User, id=user_id)
         caretaker_email = request.data.get("caretaker_email")
         if not caretaker_email or caretaker_email == user.email:
-            return Response({"error": "Invalid caretaker email."}, status=status.HTTP_400_BAD_REQUEST
+            return Response({"error": "Invalid caretaker email."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             caretaker_user = User.objects.get(email=caretaker_email)
