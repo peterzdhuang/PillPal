@@ -1,27 +1,38 @@
 'use client'
 import Link from "next/link"
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowLeft } from "lucide-react"
 import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
+import { useGlobalContext } from "@/app/layout";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const router = useRouter()
+  const { updateUser } = useGlobalContext()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     try {
-      const response = await axios.get("http://localhost:8000/api/login/")
+      const response = await axios.post("http://localhost:8000/api/login/", {
+        username: email,  // Assuming backend expects 'username'
+        password: password,
+      })
+
       if (response.status === 200) {
-        router.push("/dashboard")
+        const userId = response.data.user_id
+        // Update global context with user data (you could update with response.data.user or any other field)
+        updateUser(response.data.user)  
+        router.push(`/dashboard/${userId}`)
+        console.log(response.data)
       }
     } catch (error) {
-      console.error(error)
+      console.error("Login failed", error)
     }
   }
 
@@ -49,7 +60,16 @@ export default function LoginPage() {
               <div>
                 <Label htmlFor="email">Email address</Label>
                 <div className="mt-2">
-                  <Input id="email" name="email" type="email" autoComplete="email" required className="block w-full" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email} // Bind email state here
+                    onChange={(e) => setEmail(e.target.value)} // Handle change
+                    className="block w-full"
+                  />
                 </div>
               </div>
               <div>
@@ -61,6 +81,8 @@ export default function LoginPage() {
                     type="password"
                     autoComplete="current-password"
                     required
+                    value={password} // Bind password state here
+                    onChange={(e) => setPassword(e.target.value)} // Handle change
                     className="block w-full"
                   />
                 </div>
@@ -88,4 +110,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-} 
+}

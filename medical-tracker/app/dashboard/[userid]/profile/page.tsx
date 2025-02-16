@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import axios from "axios"
-
+import { useGlobalContext } from "@/app/layout";
 
 export default function ProfilePage() {
   const [notifications, setNotifications] = useState({
@@ -25,6 +25,14 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState<string>("")
   const [email, setEmail] = useState<string>("")
   const [phone, setPhone] = useState<string>("")
+
+  const { user } = useGlobalContext();
+  if (!user) {
+    return <p>No user logged in</p>; // Handle case where no user is logged in
+  }
+  else {
+    console.log(user)
+  }
 
   return (
     <div className="container max-w-4xl py-6">

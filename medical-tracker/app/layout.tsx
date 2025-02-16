@@ -1,5 +1,4 @@
-"use client"; // 👈 Add this to make it a Client Component
-
+'use client'
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -8,8 +7,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
-
-
 // Create a Context for global state
 const GlobalContext = createContext<any>(null);
 
