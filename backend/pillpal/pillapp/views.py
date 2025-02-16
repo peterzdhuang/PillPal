@@ -67,6 +67,7 @@ class GetUserById(APIView):
             'phone': user.phone,
             'is_caretaker': user.is_caretaker,
             'password': user.password,
+            'image': user.image.url if user.image else None,
         }
         return Response(user_data)
     
@@ -82,6 +83,7 @@ class GetUserById(APIView):
         phone = request.data.get('phone')
         new_password = request.data.get('password')  # New password to set
         current_password = request.data.get('current_password')  # Current password for verification
+        image = request.data.get('image')  # Image file
 
         # Update profile fields if provided.
         if firstname is not None:
@@ -92,6 +94,8 @@ class GetUserById(APIView):
             user.email = email
         if phone is not None:
             user.phone = phone
+        if image is not None:
+            user.image = image
 
         # Update password only if a new password was provided.
         if new_password:

@@ -20,71 +20,105 @@ export default function ProfilePage() {
     email: true,
     push: true,
     sms: false,
-  })
-  const [firstName, setFirstName] = useState<string>("")
-  const [lastName, setLastName] = useState<string>("")
-  const [email, setEmail] = useState<string>("")
-  const [phone, setPhone] = useState<string>("") // Separate state for phone.
-  const [currentPassword, setCurrentPassword] = useState<string>("")
-  const [newPassword, setNewPassword] = useState<string>("")
-  const [confirmPassword, setConfirmPassword] = useState<string>("")
+  });
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [currentPassword, setCurrentPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const { user } = useGlobalContext()
+  const { user } = useGlobalContext();
 
   // Always call useEffect; add a guard inside the effect.
   useEffect(() => {
-    if (!user) return
-
+    if (!user) return;
+  
     axios
       .get(`http://localhost:8000/api/user/${user}/`)
       .then((response) => {
-        console.log("Fetched user data:", response.data)
-        setFirstName(response.data.first_name)
-        setLastName(response.data.last_name)
-        setEmail(response.data.email)
-        setPhone(response.data.phone)
+        console.log("Fetched user data:", response.data);
+        setFirstName(response.data.first_name);
+        setLastName(response.data.last_name);
+        setEmail(response.data.email);
+        setPhone(response.data.phone);
+        if (response.data.image) {
+          // Prepend the backend URL to the image path
+          const imageUrl = `http://localhost:8000${response.data.image}`;
+          setImagePreview(imageUrl);
+        }
       })
       .catch((error) => {
-        console.error("Error fetching user data:", error)
-      })
-  }, [user])
+        console.error("Error fetching user data:", error);
+      });
+  }, [user]);
 
   // Render fallback if no user is available.
   if (!user) {
-    return <p>No user logged in</p>
+    return <p>No user logged in</p>;
   }
 
-  // Handle updating the profile (general info)
+  // Handle image selection and preview.
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Profile update handler.
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await axios.post(`http://localhost:8000/api/user/${user}/`, {
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        phone: phone,
-      })
+      const formData = new FormData();
+      formData.append("first_name", firstName);
+      formData.append("last_name", lastName);
+      formData.append("email", email);
+      formData.append("phone", phone);
 
-      console.log("Updated user data:", response.data)
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const response = await axios.post(
+        `http://localhost:8000/api/user/${user}/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Updated user data:", response.data);
     } catch (error) {
-      console.error("Error updating user data:", error)
+      console.error("Error updating user data:", error);
     }
-  }
+  };
 
-  // Handle password update
+  // Password update handler.
   const updatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (newPassword !== confirmPassword) {
       console.error("New password and confirm password do not match");
       return;
     }
-  
+
     try {
-      // Note: The endpoint is the same as your profile update.
+      // Note: Adjust this endpoint as needed. Here we're sending JSON.
       const response = await axios.post(`http://localhost:8000/api/user/${user}/`, {
-        // Only send password fields here.
         current_password: currentPassword,
         password: newPassword,
       });
@@ -93,13 +127,14 @@ export default function ProfilePage() {
       console.error("Error updating password:", error);
     }
   };
-  
 
   return (
     <div className="container max-w-4xl py-6">
       <div className="mb-8 space-y-4">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
-        <p className="text-muted-foreground">Manage your account settings and preferences.</p>
+        <p className="text-muted-foreground">
+          Manage your account settings and preferences.
+        </p>
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
@@ -120,11 +155,33 @@ export default function ProfilePage() {
             <CardContent className="space-y-6">
               <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src="/placeholder.svg?height=96&width=96" />
-                  <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage
+                  src={imagePreview || "/placeholder.svg?height=96&width=96"}
+                  alt="Profile"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/placeholder.svg?height=96&width=96";
+                  }}
+                />
+                  <AvatarFallback>
+                    {firstName?.charAt(0)}
+                    {lastName?.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-2">
-                  <Button variant="outline">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/jpeg,image/png,image/gif"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
+                  >
                     <Camera className="mr-2 h-4 w-4" />
                     Change Photo
                   </Button>
@@ -319,5 +376,5 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
