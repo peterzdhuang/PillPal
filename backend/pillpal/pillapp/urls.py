@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/users/', views.AllUsersView.as_view(), name='users'),
     path('api/user/<int:user_id>/', views.GetUserById.as_view(), name='user'),
     path('api/scan/', views.AnalyzeText.as_view(), name='scan'),
+    path('api/medications/<int:user_id>', AllMedicationsView.as_view(), name='medications-list'),
     path('api/medications/', AllMedicationsView.as_view(), name='medications-list'),
     path('api/csrf_token/', csrf_token_view, name="csrf_token"),
 

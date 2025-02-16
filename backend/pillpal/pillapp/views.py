@@ -82,8 +82,9 @@ class AllMedicationsView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        """Return medications for the authenticated user"""
-        return Medication.objects.filter(user=self.request.user)
+        # Get the user_id from the URL
+        user_id = self.kwargs['user_id']  # The user ID passed in the URL path
+        return Medication.objects.filter(user_id=user_id)
 
     def perform_create(self, serializer):
         """Automatically assign the authenticated user"""
@@ -196,7 +197,6 @@ class UserMedication(APIView): # this wont work, i changed the model - peter
             for medication in medications
         ]
         return Response(medication_data)
-    
     
 class AnalyzeText(APIView):
     # Remove authentication and permission classes
