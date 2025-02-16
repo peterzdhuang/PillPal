@@ -18,10 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextScanner, { MedicationFields } from "@/components/TextExtract";
+import axios from "axios";
 
 export default function ScanPage() {
+ 
+
   const [showScanner, setShowScanner] = useState(false);
 
   // State for each form field
@@ -33,7 +36,73 @@ export default function ScanPage() {
   const [frequency, setFrequency] = useState("");
   const [directions, setDirections] = useState("");
   const [refills, setRefills] = useState("");
+  const [csrfToken, setCsrfToken] = useState('');
+  useEffect(() => {
+    // Make sure axios sends cookies with requests
+    axios.defaults.withCredentials = true;
 
+    // Helper to get a cookie by name
+    function getCookie(name : any) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        cookies.forEach(cookie => {
+          const trimmed = cookie.trim();
+          if (trimmed.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+          }
+        });
+      }
+      return cookieValue;
+    }
+
+    async function fetchCSRFToken() {
+      try {
+        await axios.get('http://127.0.0.1:8000/api/csrf_token/');
+        const token = getCookie('csrftoken'); // Extract CSRF token from cookies
+        if (token) {
+          setCsrfToken(token);
+          console.log('CSRF token retrieved:', token);
+        } else {
+          console.warn('CSRF token not found in cookies.');
+        }
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+      }
+    }
+
+    fetchCSRFToken();
+  }, []);
+
+
+  const handleSaveMedication = async () => {
+    // Create medication data object
+    const medicationData = {
+      pharmacyName,
+      pharmacyAddress,
+      pillName,
+      date,
+      numberOfPills: parseInt(numberOfPills, 10),
+      frequency,
+      directions,
+      refills: parseInt(refills, 10),
+    };
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/medications/', 
+        medicationData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      console.log('Medication saved:', response.data);
+    } catch (error) {
+      console.error('Error saving medication:', error);
+    }
+  };
   // Callback to handle the fields returned from the backend
   const handleTextExtracted = (fields: MedicationFields) => {
     setPharmacyName(fields.pharmacyName || "");
@@ -187,7 +256,7 @@ export default function ScanPage() {
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button size="lg">
+          <Button size="lg" onClick={handleSaveMedication}>
             <Check className="mr-2 h-4 w-4" />
             Save Medication
           </Button>
