@@ -6,13 +6,16 @@ class User(models.Model):
         primary_key=True,
         editable=False,
     )
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
     password = models.CharField(max_length=100)
-    is_caretaker = models.BooleanField()
+    is_caretaker = models.BooleanField(default=False)
     patient_email = models.EmailField(null=True, blank=True)
-    followers = models.ManyToManyField('self', symmetrical=False)
+    followers = models.ManyToManyField('self', symmetrical=False, default=None, blank=True)
+    notifications = models.BooleanField(default=True)
 
 class Medication(models.Model):
     FREQUENCY_CHOICES = [
@@ -34,6 +37,7 @@ class Medication(models.Model):
     first_dose = models.TimeField(null=True, blank=True, verbose_name="First Dose")
     second_dose = models.TimeField(null=True, blank=True, verbose_name="Second Dose")
     quantity = models.IntegerField(verbose_name="Quantity", help_text="Number of pills")
+
 
     def __str__(self):
         return f"{self.name} - {self.dosage}"
