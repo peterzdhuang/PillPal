@@ -36,6 +36,7 @@ export default function TextScanner({ onClose, onTextExtracted }: TextScannerPro
       const processText = async () => {
         try {
           // Wait for the backend to respond
+          console.log("HIT THE PLACE I WANTED");
           const json = await sendTextToBackend(extractedText);
           console.log("Raw JSON:", json);
   
