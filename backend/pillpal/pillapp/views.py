@@ -106,7 +106,6 @@ class SingleMedicationView(generics.RetrieveUpdateDestroyAPIView):
     View to retrieve, update, or delete a single medication for a specific user.
     """
     serializer_class = MedicationSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         """
@@ -295,42 +294,22 @@ class AnalyzeText(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        try:
-            input_text = request.data.get('text', '')
-            print(input_text)
-            if not input_text:
-                return Response(
-                    {'error': 'No text provided'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Perform text analysis
-            analysis_result = analyze.analyze_text(input_text)
-            
-            if not analysis_result:
-                return Response(
-                    {'error': 'Failed to analyze text'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-            return Response({
-                'success': True,
-                'data': analysis_result
-                # Removed user field from response
-            }, status=status.HTTP_200_OK)
-
-        except json.JSONDecodeError:
+        input_text = request.data.get('text', '')
+        print(input_text)
+        if not input_text:
             return Response(
-                {'error': 'Invalid JSON format'},
+                {'error': 'No text provided'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-        except Exception as e:
+
+        # Perform text analysis
+        analysis_result = analyze.analyze_text(input_text)
+        
+        if not analysis_result:
             return Response(
-                {'error': str(e)},
+                {'error': 'Failed to analyze text'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
             
         users = User.objects.all()
         # Exclude sensitive fields like the password from the returned data.
