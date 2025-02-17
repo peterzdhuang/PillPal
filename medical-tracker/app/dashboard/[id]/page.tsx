@@ -13,7 +13,12 @@ import {
   BellRing,
   X,
 } from "lucide-react";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,6 +42,28 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { SuccessAlert } from "@/components/successAlert";
+const getScheduleTimes = (frequency: string): string[] => {
+  switch (frequency) {
+    case 'Once daily':
+      return ['08:00'];
+    case 'Twice daily':
+      return ['08:00', '19:00'];
+    case 'Three times daily':
+      return ['08:00', '12:00', '19:00'];
+    case 'Four times daily':
+      return ['06:00', '10:00', '14:00', '18:00'];
+    default:
+      return [];
+  }
+};
+const formatTime = (timeString: string): string => {
+  const [hours, minutes] = timeString.split(':');
+  const hour = parseInt(hours, 10);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = hour % 12 || 12;
+  return `${formattedHour}:${minutes} ${period}`;
+};
 
 // Updated Medication interface based on your backend serializer.
 interface Medication {
@@ -55,6 +82,8 @@ interface Medication {
 }
 
 export default function DashboardPage() {
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertInfo, setAlertInfo] = useState<{ title: string; message: string } | null>(null)
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -79,6 +108,7 @@ export default function DashboardPage() {
         );
 
         const transformed = res.data.map((serverMed: any) => ({
+
           id: serverMed.id,
           user: serverMed.user,
           pillName: serverMed.name ?? "Unknown",
@@ -92,6 +122,7 @@ export default function DashboardPage() {
           directions: serverMed.directions,
           date: serverMed.date_prescribed,
         }));
+        console.log(transformed);
 
         setMedications(transformed);
       } catch (err) {
@@ -182,7 +213,27 @@ export default function DashboardPage() {
   };
 
   // Take medication – POST to a dedicated endpoint that updates lastTaken and calculates the new next due date
-  const handleTakeMedication = async (med: Medication) => {
+  const handleTakeMedication = async (id: string, med: Medication) => {
+
+    const lastHyphenIndex = id.lastIndexOf('-');  // Use LAST hyphen
+
+    let medId: string;  // Declare with let for block scope
+    let time: string;
+
+    if (lastHyphenIndex === -1) {
+        // Proper error handling
+        throw new Error('Invalid medication ID format - missing hyphen');
+        // Or: return; if you prefer silent failure
+    } else {
+        // Assign to outer variables (don't redeclare with const)
+        medId = id.substring(0, lastHyphenIndex);
+        time = id.substring(lastHyphenIndex + 1);
+    }
+
+    // Now use medId and time safely
+    console.log('Split values:', { medId, time });
+
+    med.id = parseInt(medId, 10);  
     if (!user || !user.user) return;
     const currentQty = Number(med.numberOfPills) || 0;
     if (currentQty <= 0) {
@@ -190,7 +241,6 @@ export default function DashboardPage() {
       return;
     }
     const updatedQty = currentQty - 1;
-
     // Set lastTaken to now and calculate next due date based solely on frequency
     const lastTakenDate = new Date();
     const nextDueDate = new Date(lastTakenDate);
@@ -229,9 +279,11 @@ export default function DashboardPage() {
             : m
         )
       );
-      alert(
-        `Medication ${med.pillName} taken! Next dose on ${nextDueDate.toLocaleDateString()}`
-      );
+      setAlertInfo({
+        title: "Medication Taken",
+        message: `${med.pillName} taken! Next dose on }`,
+      })
+      setShowAlert(true)
     } catch (err) {
       console.error("Error taking medication:", err);
       alert("Failed to take medication.");
@@ -348,15 +400,22 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
+        
         <div className="bg-gradient-to-r from-primary/90 to-primary p-8 rounded-xl shadow-lg text-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4">
             <div>
               <h1 className="text-4xl font-bold">Medication Dashboard</h1>
-              <p className="text-white/80">
-                Managing {medications.length} medications | {totalPills} pills in stock
-              </p>
             </div>
+            {showAlert && alertInfo && (
+              <SuccessAlert
+                title={alertInfo.title}
+                message={alertInfo.message}
+                onClose={() => setShowAlert(false)}
+                duration={5000}
+              />
+            )}
+
+
             <Link href={`/dashboard/scan/${user.user}`}>
               <Button className="bg-white text-primary hover:bg-white/90">
                 <PlusCircle className="mr-2 h-5 w-5" />
@@ -368,6 +427,7 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
           <Card className="bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-green-700">
@@ -399,6 +459,7 @@ export default function DashboardPage() {
               <CardTitle className="flex items-center space-x-2 text-yellow-700">
                 <AlertCircle className="h-5 w-5" />
                 <span>Low Stock Alert</span>
+                
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -409,103 +470,124 @@ export default function DashboardPage() {
           
         </div>
         
-        <div className="flex min-h-svh items-center justify-center">
-            <div className="w-full max-w-6xl">
-                <ChartArea />
-            </div>
-        </div>
-
-
         {/* Medication Schedule */}
-        <Card>
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                <span>Upcoming Schedule</span>
-              </CardTitle>
-              <Badge variant="outline" className="text-primary">
-                Next 7 days
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            {scheduleData.length === 0 ? (
-              <div className="text-center py-8">
-                <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No medications scheduled yet.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {scheduleData.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center",
-                          item.status === "taken"
-                            ? "bg-green-100 text-green-600"
-                            : item.daysUntilDue !== null && item.daysUntilDue <= 3
-                            ? "bg-red-100 text-red-600"
-                            : "bg-green-100 text-green-600"
-                        )}
-                      >
-                        <BellRing className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{item.pillName}</p>
-                        <p className="text-sm text-gray-500">
-                          {item.frequency || "No frequency specified"}
-                        </p>
-                      </div>
+<Card>
+  <CardHeader className="border-b">
+    <div className="flex items-center justify-between">
+      <CardTitle className="flex items-center space-x-2">
+        <Calendar className="h-5 w-5 text-primary" />
+        <span>Daily Schedule</span>
+      </CardTitle>
+      <Badge variant="outline" className="text-primary">
+        Set a Reminder Below!
+      </Badge>
+    </div>
+  </CardHeader>
+      <CardContent className="p-6">
+        {scheduleData.length === 0 ? (
+          <div className="text-center py-8">
+            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">No medications scheduled yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {scheduleData
+              .flatMap((medication) => {
+                const times = getScheduleTimes(medication.frequency || '');
+                return times.map(time => ({
+                  ...medication,
+                  id: `${medication.id}-${time}`,
+                  time: time,
+                }));
+              })
+              .sort((a, b) => a.time.localeCompare(b.time))
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div
+                      className={cn(
+                        "h-10 w-10 rounded-full flex items-center justify-center",
+                        item.status === "taken"
+                          ? "bg-green-100 text-green-600"
+                          : item.daysUntilDue !== null && item.daysUntilDue <= 3
+                          ? "bg-red-100 text-red-600"
+                          : "bg-green-100 text-green-600"
+                      )}
+                    >
+                      <BellRing className="h-5 w-5" />
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <Badge
-                        variant={
-                          item.status === "taken"
-                            ? "success"
-                            : item.daysUntilDue === null
-                            ? "outline"
-                            : item.daysUntilDue <= 3
-                            ? "destructive"
-                            : "default"
-                        }
-                      >
-                        {item.status === "taken"
-                          ? "Taken"
-                          : item.daysUntilDue === null
-                          ? "No date"
-                          : item.daysUntilDue < 0
-                          ? `${Math.abs(item.daysUntilDue)}d overdue`
-                          : `Due in ${item.daysUntilDue}d`}
-                      </Badge>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleTakeMedication(item)}
-                        >
-                          Take
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openRefillModal(item)}
-                          disabled={item.refills === 0}
-                        >
-                          Refill
-                        </Button>
-                      </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.pillName}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatTime(item.time)}
+                      </p>
+                      {item.directions ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                                Directions: {item.directions}
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-[300px]">
+                              <p className="text-sm">{item.directions}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-1 italic">
+                          No specific directions provided
+                        </p>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <div className="flex items-center space-x-4">
+                    <Badge
+                      variant={
+                        item.status === "taken"
+                          ? "success"
+                          : item.daysUntilDue === null
+                          ? "outline"
+                          : item.daysUntilDue <= 3
+                          ? "destructive"
+                          : "default"
+                      }
+                    >
+                      {item.status === "taken"
+                        ? "Taken"
+                        : item.daysUntilDue === null
+                        ? "No date"
+                        : item.daysUntilDue < 0
+                        ? `${Math.abs(item.daysUntilDue)}d overdue`
+                        : `Due in ${item.daysUntilDue}d`}
+                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleTakeMedication(item.id, item)}
+                      >
+                        Take
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openRefillModal(item)}
+                        disabled={item.refills === 0}
+                      >
+                        Refill
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
 
         {/* Medication List */}
         <Card>
@@ -664,6 +746,16 @@ export default function DashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        
+      {/*
+      <div className="flex min-h-svh items-center justify-center mt-10">
+            <div className="w-full max-w-6xl">
+                <ChartArea />
+            </div>
+        </div>      
+      */}
+      
     </div>
+    
   );
 }
