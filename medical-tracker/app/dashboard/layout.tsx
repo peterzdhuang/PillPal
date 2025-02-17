@@ -72,11 +72,11 @@ export default function DashboardLayout({
               <span>Logs</span>
             </Link>
             <Link
-              href={`/dashboard/scan`}
+              href={`/dashboard/medication-details`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <Scan className="h-5 w-5" />
-              <span>Scan</span>
+              <span>Medication Details</span>
             </Link>
             <Link
               href={`/dashboard/users`}
