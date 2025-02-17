@@ -32,7 +32,7 @@ export default function SignUpPage() {
         is_caretaker: isCaretaker,
         patient_email: patientEmail,
       });
-
+      
       router.push("/login")
     } catch (error) {
       console.error("Error during sign up:", error)
@@ -140,38 +140,3 @@ export default function SignUpPage() {
     </div>
   )
 }
-
-// Footer Component (Move it out of the SignUpPage)
-function Footer() {
-  return (
-    <footer className="bg-black text-white py-8 md:py-12">
-      <div className="container flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 md:space-x-12">
-        <div className="flex items-center space-x-2">
-          <Pills className="h-8 w-8 text-primary" />
-          <span className="font-semibold text-xl">Pillpal</span>
-        </div>
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-12 text-sm">
-          <Link href="/login" className="hover:text-primary transition-colors">Log in</Link>
-          <Link href="/signup" className="hover:text-primary transition-colors">Sign up</Link>
-          <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-        </div>
-        <div className="flex space-x-6">
-          <Link href="https://facebook.com" target="_blank" aria-label="Facebook">
-            <Bell className="h-6 w-6 text-white hover:text-primary transition-colors" />
-          </Link>
-          <Link href="https://twitter.com" target="_blank" aria-label="Twitter">
-            <Calendar className="h-6 w-6 text-white hover:text-primary transition-colors" />
-          </Link>
-          <Link href="https://instagram.com" target="_blank" aria-label="Instagram">
-            <Users className="h-6 w-6 text-white hover:text-primary transition-colors" />
-          </Link>
-        </div>
-      </div>
-      <div className="mt-8 text-center text-sm text-white/80">
-        <p>© 2025 Pillpal. All rights reserved.</p>
-      </div>
-    </footer>
-  )
-}
-
