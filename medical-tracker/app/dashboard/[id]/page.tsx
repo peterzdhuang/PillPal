@@ -43,21 +43,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-// ------------------------------
-// Nearby drugstores mock data (real pharmacy names near University of Alberta)
-const allNearbyDrugstores = [
-  { name: "Shoppers Drug Mart", address: "11210 82 Ave NW, Edmonton, AB T6G 2H2, Canada" },
-  { name: "Rexall Express Pharmacy", address: "10404 112 St NW, Edmonton, AB T6G 2K8, Canada" },
-  { name: "Costco Pharmacy", address: "10180 102 Ave NW, Edmonton, AB T5H 0L8, Canada" },
-  { name: "Pharmasave", address: "9805 127 St NW, Edmonton, AB T6L 4M9, Canada" },
-  { name: "Mayfair Drugs", address: "10704 104 St NW, Edmonton, AB T6G 1X4, Canada" },
-  { name: "Rexall Pharmacy", address: "10224 101 Ave NW, Edmonton, AB T6H 0K3, Canada" },
-  { name: "Safeway Pharmacy", address: "11111 82 Ave NW, Edmonton, AB T6G 2N5, Canada" },
-  { name: "Medicine Plus Pharmacy", address: "12120 99 Ave NW, Edmonton, AB T5J 2X5, Canada" },
-  { name: "Guardian Pharmacy", address: "11234 86 Ave NW, Edmonton, AB T6G 2S9, Canada" },
-  { name: "WellCare Pharmacy", address: "10550 107 St NW, Edmonton, AB T6G 2P6, Canada" },
-];
-
 // Utility function to shuffle an array (Fisher-Yates algorithm)
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
@@ -108,6 +93,26 @@ interface Medication {
 }
 
 export default function DashboardPage() {
+    const GOOGLE_MAPS_API_KEY = "AIzaSyBEYtjidKn9DlyQy0koyrTrDkavg9u15hE"; 
+    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+    useEffect(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => console.error("Error getting location:", error)
+        );
+      }
+    }, []);
+    const getGoogleMapsEmbedUrl = () => {
+      if (!userLocation) return "";
+        return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_API_KEY}&q=pharmacy&center=${userLocation.lat},${userLocation.lng}&zoom=14`;
+    };
+
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -127,7 +132,6 @@ export default function DashboardPage() {
   const openRefillModal = (med: Medication) => {
     setSelectedMedication(med);
     setRefillAmount("");
-    setDisplayedStores(shuffleArray(allNearbyDrugstores).slice(0, 3));
     setShowRefillModal(true);
   };
 
@@ -729,19 +733,23 @@ export default function DashboardPage() {
               className="w-full"
             />
           </div>
-
-          {/* List of nearby drugstores (randomly pick 3) */}
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">Nearby Drugstores</h3>
-            <ul className="space-y-2 mt-2">
-              {shuffleArray(allNearbyDrugstores).slice(0, 3).map((store, index) => (
-                <li key={index} className="p-4 border border-gray-300 rounded-md">
-                  <h4 className="font-medium">{store.name}</h4>
-                  <p className="text-sm text-gray-600">{store.address}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+          
+            {/* Embedded Google Map for Nearby Pharmacies */}
+            <div className="mt-4">
+                <h3 className="text-lg font-semibold">Nearby Drugstores</h3>
+                {userLocation ? (
+                <iframe
+                    width="100%"
+                    height="300"
+                    frameBorder="0"
+                    style={{ border: 0 }}
+                    src={getGoogleMapsEmbedUrl()}
+                    allowFullScreen
+                ></iframe>
+                ) : (
+                <p className="text-sm text-gray-600">Fetching your location...</p>
+                )}
+            </div>
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowRefillModal(false)}>
