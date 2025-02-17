@@ -31,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ChartArea } from "@/components/chart-line"
+import { ChartArea } from "@/components/chart-line";
 
 // Import Dialog components (or your own Modal components)
 import {
@@ -42,25 +42,51 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { SuccessAlert } from "@/components/successAlert";
+
+// ------------------------------
+// Nearby drugstores mock data (real pharmacy names near University of Alberta)
+const allNearbyDrugstores = [
+  { name: "Shoppers Drug Mart", address: "11210 82 Ave NW, Edmonton, AB T6G 2H2, Canada" },
+  { name: "Rexall Express Pharmacy", address: "10404 112 St NW, Edmonton, AB T6G 2K8, Canada" },
+  { name: "Costco Pharmacy", address: "10180 102 Ave NW, Edmonton, AB T5H 0L8, Canada" },
+  { name: "Pharmasave", address: "9805 127 St NW, Edmonton, AB T6L 4M9, Canada" },
+  { name: "Mayfair Drugs", address: "10704 104 St NW, Edmonton, AB T6G 1X4, Canada" },
+  { name: "Rexall Pharmacy", address: "10224 101 Ave NW, Edmonton, AB T6H 0K3, Canada" },
+  { name: "Safeway Pharmacy", address: "11111 82 Ave NW, Edmonton, AB T6G 2N5, Canada" },
+  { name: "Medicine Plus Pharmacy", address: "12120 99 Ave NW, Edmonton, AB T5J 2X5, Canada" },
+  { name: "Guardian Pharmacy", address: "11234 86 Ave NW, Edmonton, AB T6G 2S9, Canada" },
+  { name: "WellCare Pharmacy", address: "10550 107 St NW, Edmonton, AB T6G 2P6, Canada" },
+];
+
+// Utility function to shuffle an array (Fisher-Yates algorithm)
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 const getScheduleTimes = (frequency: string): string[] => {
   switch (frequency) {
-    case 'Once daily':
-      return ['08:00'];
-    case 'Twice daily':
-      return ['08:00', '19:00'];
-    case 'Three times daily':
-      return ['08:00', '12:00', '19:00'];
-    case 'Four times daily':
-      return ['06:00', '10:00', '14:00', '18:00'];
+    case "Once daily":
+      return ["08:00"];
+    case "Twice daily":
+      return ["08:00", "19:00"];
+    case "Three times daily":
+      return ["08:00", "12:00", "19:00"];
+    case "Four times daily":
+      return ["06:00", "10:00", "14:00", "18:00"];
     default:
       return [];
   }
 };
+
 const formatTime = (timeString: string): string => {
-  const [hours, minutes] = timeString.split(':');
+  const [hours, minutes] = timeString.split(":");
   const hour = parseInt(hours, 10);
-  const period = hour >= 12 ? 'PM' : 'AM';
+  const period = hour >= 12 ? "PM" : "AM";
   const formattedHour = hour % 12 || 12;
   return `${formattedHour}:${minutes} ${period}`;
 };
@@ -69,21 +95,19 @@ const formatTime = (timeString: string): string => {
 interface Medication {
   id: number;
   user: number | string;
-  pillName: string; // from 'name'
-  dosage: string | null; // from 'dosage'
+  pillName: string;
+  dosage: string | null;
   frequency: string | null;
-  firstDose: string | null; // from 'first_dose'
-  secondDose: string | null; // from 'second_dose'
-  numberOfPills: number | null; // from 'quantity'
-  lastTaken?: string; // from 'last_taken'
-  refills: number; // from 'refills_remaining'
+  firstDose: string | null;
+  secondDose: string | null;
+  numberOfPills: number | null;
+  lastTaken?: string;
+  refills: number;
   directions: string | null;
-  date: string | null; // from 'date_prescribed'
+  date: string | null;
 }
 
 export default function DashboardPage() {
-  const [showAlert, setShowAlert] = useState(false)
-  const [alertInfo, setAlertInfo] = useState<{ title: string; message: string } | null>(null)
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -94,8 +118,60 @@ export default function DashboardPage() {
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
   const [refillAmount, setRefillAmount] = useState<number | "">("");
+  // State for displayed nearby drugstores
+  const [displayedStores, setDisplayedStores] = useState<any[]>([]);
 
   const user = useGlobalContext();
+
+  // When opening the refill modal, randomize and select 3 nearby drugstores.
+  const openRefillModal = (med: Medication) => {
+    setSelectedMedication(med);
+    setRefillAmount("");
+    setDisplayedStores(shuffleArray(allNearbyDrugstores).slice(0, 3));
+    setShowRefillModal(true);
+  };
+
+  // Confirm refill via modal input
+  const handleConfirmRefill = async () => {
+    if (!user || !user.user || !selectedMedication) return;
+    if (!refillAmount || Number(refillAmount) <= 0) {
+      alert("Please enter a valid number greater than 0");
+      return;
+    }
+    try {
+      const newQuantity = Number(refillAmount);
+      const newRefills = selectedMedication.refills - 1;
+
+      await axios.patch(
+        `http://localhost:8000/api/medications/${user.user}/${selectedMedication.id}/`,
+        {
+          quantity: newQuantity,
+          refills_remaining: newRefills,
+        }
+      );
+
+      setMedications((prev) =>
+        prev.map((m) =>
+          m.id === selectedMedication.id
+            ? {
+                ...m,
+                numberOfPills: newQuantity,
+                refills: newRefills,
+              }
+            : m
+        )
+      );
+      alert(
+        `Medication ${selectedMedication.pillName} refilled with ${newQuantity} pills!`
+      );
+      setShowRefillModal(false);
+      setSelectedMedication(null);
+      setRefillAmount("");
+    } catch (err) {
+      console.error("Error refilling medication:", err);
+      alert("Failed to refill medication.");
+    }
+  };
 
   // Fetch medications using updated mapping
   useEffect(() => {
@@ -108,7 +184,6 @@ export default function DashboardPage() {
         );
 
         const transformed = res.data.map((serverMed: any) => ({
-
           id: serverMed.id,
           user: serverMed.user,
           pillName: serverMed.name ?? "Unknown",
@@ -122,7 +197,6 @@ export default function DashboardPage() {
           directions: serverMed.directions,
           date: serverMed.date_prescribed,
         }));
-        console.log(transformed);
 
         setMedications(transformed);
       } catch (err) {
@@ -212,28 +286,8 @@ export default function DashboardPage() {
     }
   };
 
-  // Take medication – POST to a dedicated endpoint that updates lastTaken and calculates the new next due date
-  const handleTakeMedication = async (id: string, med: Medication) => {
-
-    const lastHyphenIndex = id.lastIndexOf('-');  // Use LAST hyphen
-
-    let medId: string;  // Declare with let for block scope
-    let time: string;
-
-    if (lastHyphenIndex === -1) {
-        // Proper error handling
-        throw new Error('Invalid medication ID format - missing hyphen');
-        // Or: return; if you prefer silent failure
-    } else {
-        // Assign to outer variables (don't redeclare with const)
-        medId = id.substring(0, lastHyphenIndex);
-        time = id.substring(lastHyphenIndex + 1);
-    }
-
-    // Now use medId and time safely
-    console.log('Split values:', { medId, time });
-
-    med.id = parseInt(medId, 10);  
+  // Take medication – POST to update lastTaken and calculate next due date.
+  const handleTakeMedication = async (med: Medication) => {
     if (!user || !user.user) return;
     const currentQty = Number(med.numberOfPills) || 0;
     if (currentQty <= 0) {
@@ -241,7 +295,7 @@ export default function DashboardPage() {
       return;
     }
     const updatedQty = currentQty - 1;
-    // Set lastTaken to now and calculate next due date based solely on frequency
+
     const lastTakenDate = new Date();
     const nextDueDate = new Date(lastTakenDate);
     switch (med.frequency?.toLowerCase()) {
@@ -259,13 +313,13 @@ export default function DashboardPage() {
     }
 
     try {
-        await axios.patch(
-            `http://localhost:8000/api/medications/${user.user}/${med.id}/`,
-            {
-                quantity: updatedQty,
-                last_taken: lastTakenDate.toISOString(),
-            }
-        );
+      await axios.patch(
+        `http://localhost:8000/api/medications/${user.user}/${med.id}/`,
+        {
+          quantity: updatedQty,
+          last_taken: lastTakenDate.toISOString(),
+        }
+      );
 
       setMedications((prev) =>
         prev.map((m) =>
@@ -279,63 +333,12 @@ export default function DashboardPage() {
             : m
         )
       );
-      setAlertInfo({
-        title: "Medication Taken",
-        message: `${med.pillName} taken!`,
-      })
-      setShowAlert(true)
+      alert(
+        `Medication ${med.pillName} taken! Next dose on ${nextDueDate.toLocaleDateString()}`
+      );
     } catch (err) {
       console.error("Error taking medication:", err);
       alert("Failed to take medication.");
-    }
-  };
-
-  // Open refill modal
-  const openRefillModal = (med: Medication) => {
-    setSelectedMedication(med);
-    setRefillAmount("");
-    setShowRefillModal(true);
-  };
-
-  // Confirm refill via modal input
-  const handleConfirmRefill = async () => {
-    if (!user || !user.user || !selectedMedication) return;
-    if (!refillAmount || Number(refillAmount) <= 0) {
-      alert("Please enter a valid number greater than 0");
-      return;
-    }
-    try {
-      const newQuantity = Number(refillAmount);
-      const newRefills = selectedMedication.refills - 1;
-
-      await axios.patch(
-        `http://localhost:8000/api/medications/${user.user}/${selectedMedication.id}/`,
-        {
-          quantity: newQuantity,
-          refills_remaining: newRefills,
-        }
-      );
-
-      setMedications((prev) =>
-        prev.map((m) =>
-          m.id === selectedMedication.id
-            ? {
-                ...m,
-                numberOfPills: newQuantity,
-                refills: newRefills,
-              }
-            : m
-        )
-      );
-      alert(
-        `Medication ${selectedMedication.pillName} refilled with ${newQuantity} pills!`
-      );
-      setShowRefillModal(false);
-      setSelectedMedication(null);
-      setRefillAmount("");
-    } catch (err) {
-      console.error("Error refilling medication:", err);
-      alert("Failed to refill medication.");
     }
   };
 
@@ -374,8 +377,6 @@ export default function DashboardPage() {
   }
 
   // Prepare schedule info.
-  // If a medication was taken today (based on lastTaken), mark its status as "taken".
-  // Otherwise, calculate daysUntilDue based on the next due date.
   const scheduleData = medications.map((m) => {
     const today = new Date();
     if (m.lastTaken) {
@@ -400,22 +401,15 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+        {/* Header */}
         <div className="bg-gradient-to-r from-primary/90 to-primary p-8 rounded-xl shadow-lg text-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4">
             <div>
               <h1 className="text-4xl font-bold">Medication Dashboard</h1>
+              <p className="text-white/80">
+                Managing {medications.length} medications | {totalPills} pills in stock
+              </p>
             </div>
-            {showAlert && alertInfo && (
-              <SuccessAlert
-                title={alertInfo.title}
-                message={alertInfo.message}
-                onClose={() => setShowAlert(false)}
-                duration={5000}
-              />
-            )}
-
-
             <Link href={`/dashboard/scan/${user.user}`}>
               <Button className="bg-white text-primary hover:bg-white/90">
                 <PlusCircle className="mr-2 h-5 w-5" />
@@ -427,7 +421,6 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
           <Card className="bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-green-700">
@@ -459,7 +452,6 @@ export default function DashboardPage() {
               <CardTitle className="flex items-center space-x-2 text-yellow-700">
                 <AlertCircle className="h-5 w-5" />
                 <span>Low Stock Alert</span>
-                
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -467,143 +459,133 @@ export default function DashboardPage() {
               <p className="text-sm text-yellow-600">Medications below 10 pills</p>
             </CardContent>
           </Card>
-          
         </div>
         
         {/* Medication Schedule */}
-<Card>
-  <CardHeader className="border-b">
-    <div className="flex items-center justify-between">
-      <CardTitle className="flex items-center space-x-2">
-        <Calendar className="h-5 w-5 text-primary" />
-        <span>Daily Schedule</span>
-      </CardTitle>
-      <Badge variant="outline" className="text-primary">
-        Set a Reminder Below!
-      </Badge>
-    </div>
-  </CardHeader>
-  <CardContent className="p-0">
-        <div className="h-[400px] overflow-y-auto px-6 custom-scrollbar">
-          {scheduleData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center py-8">
-              <Calendar className="h-12 w-12 text-gray-300 mb-4" />
-              <p className="text-gray-500">No medications scheduled yet.</p>
+        <Card>
+          <CardHeader className="border-b">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <span>Daily Schedule</span>
+              </CardTitle>
+              <Badge variant="outline" className="text-primary">
+                Set a Reminder Below!
+              </Badge>
             </div>
-          ) : (
-            <div className="space-y-4 py-6">
-              {scheduleData
-                .flatMap((medication) => {
-                  const times = getScheduleTimes(medication.frequency || "")
-                  return times.map((time) => ({
-                    ...medication,
-                    id: `${medication.id}-${time}`,
-                    time: time,
-                  }))
-                })
-                .sort((a, b) => a.time.localeCompare(b.time))
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center",
-                          item.status === "taken"
-                            ? "bg-green-100 text-green-600"
-                            : item.daysUntilDue !== null && item.daysUntilDue <= 3
+          </CardHeader>
+          <CardContent className="p-6">
+            {scheduleData.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No medications scheduled yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {scheduleData
+                  .flatMap((medication) => {
+                    const times = getScheduleTimes(medication.frequency || "");
+                    return times.map((time) => ({
+                      ...medication,
+                      id: `${medication.id}-${time}`,
+                      time: time,
+                    }));
+                  })
+                  .sort((a, b) => a.time.localeCompare(b.time))
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div
+                          className={cn(
+                            "h-10 w-10 rounded-full flex items-center justify-center",
+                            item.status === "taken"
+                              ? "bg-green-100 text-green-600"
+                              : item.daysUntilDue !== null && item.daysUntilDue <= 3
                               ? "bg-red-100 text-red-600"
-                              : "bg-green-100 text-green-600",
-                        )}
-                      >
-                        <BellRing className="h-5 w-5" />
+                              : "bg-green-100 text-green-600"
+                          )}
+                        >
+                          <BellRing className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium">{item.pillName}</p>
+                          <p className="text-sm text-gray-500">
+                            {formatTime(item.time)}
+                          </p>
+                          {item.directions ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                                    Directions: {item.directions}
+                                  </p>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-[300px]">
+                                  <p className="text-sm">{item.directions}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <p className="text-xs text-gray-400 mt-1 italic">
+                              No specific directions provided
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{item.pillName}</p>
-                        <p className="text-sm text-gray-500">{formatTime(item.time)}</p>
-                        {item.directions ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p className="text-xs text-gray-400 mt-1 line-clamp-1">Directions: {item.directions}</p>
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-[300px]">
-                                <p className="text-sm">{item.directions}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <p className="text-xs text-gray-400 mt-1 italic">No specific directions provided</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <Badge
-                        variant={
-                          item.status === "taken"
-                            ? "success"
-                            : item.daysUntilDue === null
+                      <div className="flex items-center space-x-4">
+                        <Badge
+                          variant={
+                            item.status === "taken"
+                              ? "success"
+                              : item.daysUntilDue === null
                               ? "outline"
                               : item.daysUntilDue <= 3
-                                ? "destructive"
-                                : "default"
-                        }
-                        className={item.status === "taken" ? "text-[#21a4b5]" : ""}
-                      >
-                        {item.status === "taken"
-                          ? "Taken"
-                          : item.daysUntilDue === null
+                              ? "destructive"
+                              : "default"
+                          }
+                        >
+                          {item.status === "taken"
+                            ? "Taken"
+                            : item.daysUntilDue === null
                             ? "No date"
                             : item.daysUntilDue < 0
-                              ? `${Math.abs(item.daysUntilDue)}d overdue`
-                              : `Due in ${item.daysUntilDue}d`}
-                      </Badge>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleTakeMedication(item.id, item)}>
-                          Take
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openRefillModal(item)}
-                          disabled={item.refills === 0}
-                        >
-                          Refill
-                        </Button>
+                            ? `${Math.abs(item.daysUntilDue)}d overdue`
+                            : `Due in ${item.daysUntilDue}d`}
+                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleTakeMedication(item)}
+                          >
+                            Take
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openRefillModal(item)}
+                            disabled={item.refills === 0}
+                          >
+                            Refill
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      </CardContent>
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #6b7280;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #1c8f9e;
-        }
-      `}</style>
-    </Card>
+                  ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Medication List */}
         <Card>
           <CardHeader className="border-b">
             <CardTitle>Medication List</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 ml-4 mr-4 mt-2 mb02">
+          <CardContent className="p-0 ml-4 mr-4 mt-2">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -747,6 +729,20 @@ export default function DashboardPage() {
               className="w-full"
             />
           </div>
+
+          {/* List of nearby drugstores (randomly pick 3) */}
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Nearby Drugstores</h3>
+            <ul className="space-y-2 mt-2">
+              {shuffleArray(allNearbyDrugstores).slice(0, 3).map((store, index) => (
+                <li key={index} className="p-4 border border-gray-300 rounded-md">
+                  <h4 className="font-medium">{store.name}</h4>
+                  <p className="text-sm text-gray-600">{store.address}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowRefillModal(false)}>
               Cancel
@@ -755,16 +751,7 @@ export default function DashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-        
-      {/*
-      <div className="flex min-h-svh items-center justify-center mt-10">
-            <div className="w-full max-w-6xl">
-                <ChartArea />
-            </div>
-        </div>      
-      */}
       
     </div>
-    
   );
 }

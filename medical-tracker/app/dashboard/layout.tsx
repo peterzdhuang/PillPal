@@ -3,28 +3,36 @@ import type React from "react";
 import Link from "next/link";
 import {
   PillIcon,
-  Scan,
   Users,
   SettingsIcon,
   MessageCircle,
   HeartPulse,
   FileHeart,
+  Weight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useGlobalContext } from "@/app/layout";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useGlobalContext();
+
+  const user = useGlobalContext().user;
+  
+    
   if (!user) {
     return <p>No user logged in</p>;
   } else {
     console.log(user);
   }
+
+  
+
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -77,7 +85,14 @@ export default function DashboardLayout({
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <FileHeart className="h-5 w-5" />
-              <span>Medication Details</span>
+              <span>Learn more</span>
+            </Link>
+            <Link
+              href={`/dashboard/lifehabit`}
+              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
+            >
+              <Weight className="h-5 w-5" />
+              <span>Life Habit</span>
             </Link>
             <Link
               href={`/dashboard/users`}
