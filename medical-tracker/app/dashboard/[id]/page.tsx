@@ -1,6 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import {
   PlusCircle,
   Pill,
@@ -93,7 +97,6 @@ interface Medication {
 }
 
 export default function DashboardPage() {
-    const GOOGLE_MAPS_API_KEY = "AIzaSyBEYtjidKn9DlyQy0koyrTrDkavg9u15hE"; 
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     useEffect(() => {
       if (navigator.geolocation) {
@@ -110,7 +113,7 @@ export default function DashboardPage() {
     }, []);
     const getGoogleMapsEmbedUrl = () => {
       if (!userLocation) return "";
-        return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_API_KEY}&q=pharmacy&center=${userLocation.lat},${userLocation.lng}&zoom=14`;
+        return `https://www.google.com/maps/embed/v1/search?key=${"AIzaSyAdSvMnpxpGQtZCdUnFpD5Kbxn5hUhKdwk"}&q=pharmacy&center=${userLocation.lat},${userLocation.lng}&zoom=14`;
     };
 
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -135,6 +138,7 @@ export default function DashboardPage() {
   };
 
   // Confirm refill via modal input
+
   const handleConfirmRefill = async () => {
 
     if (!user || !user.user || !selectedMedication) return;

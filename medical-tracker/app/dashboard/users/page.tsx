@@ -20,8 +20,14 @@ import {
   Package,
   ClipboardIcon,
   Clipboard,
+  Heart,
+  Activity,
+  Footprints,
+  Weight,
 } from "lucide-react"
 import { Button } from '@/components/ui/button';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
 
 interface User {
   id: number
@@ -42,6 +48,13 @@ const fakeUsers: User[] = [
   { id: 4, first_name: "Emily", last_name: "Davis", email: "emily@example.com", phone: "444-987-6543", is_caretaker: false, password: "", image: null, notifications: 4, caretaker_email: "caretaker@example.com" },
   { id: 5, first_name: "Robert", last_name: "Johnson", email: "robert@example.com", phone: "222-555-7777", is_caretaker: false, password: "", image: null, notifications: 1, caretaker_email: "caretaker@example.com" },
 ]
+const healthData = [
+  { date: "2024-02-01", bmi: 22.5, systolic: 120, diastolic: 80, weight: 70, steps: 8000 },
+  { date: "2024-02-02", bmi: 22.7, systolic: 122, diastolic: 82, weight: 70.2, steps: 7500 },
+  { date: "2024-02-03", bmi: 22.8, systolic: 118, diastolic: 78, weight: 70.4, steps: 8200 },
+  { date: "2024-02-04", bmi: 22.6, systolic: 121, diastolic: 79, weight: 70.1, steps: 7800 },
+  { date: "2024-02-05", bmi: 22.9, systolic: 125, diastolic: 85, weight: 70.6, steps: 8100 },
+];
 
 interface Medication {
   id: number
@@ -170,128 +183,199 @@ export default function AnalyticsPage() {
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4 md:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
-          <Card className="bg-gradient-to-r from-primary/90 to-primary shadow-lg">
-            <CardHeader className="p-8">
-              <CardTitle className="text-4xl font-bold flex items-center gap-3 text-primary-foreground">
-                <Users className="h-10 w-10" /> Nursing Home Analytics
-              </CardTitle>
-              <p className="mt-2 text-lg text-primary-foreground/90">
-                Overview of patients, notifications, and medications
-              </p>
-            </CardHeader>
-          </Card>
-          <Card className="shadow-md overflow-hidden">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Patient Details</h3>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={prevSlide}
-                className="h-8 w-8"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {currentIndex + 1} / {users.length}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={nextSlide}
-                className="h-8 w-8"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-lg font-semibold">
-                {currentUser.first_name} {currentUser.last_name}
-              </p>
-              <p className="text-sm text-muted-foreground flex items-center">
-                <Bell className="h-4 w-4 mr-2" />
-                Notifications: {currentUser.notifications}
-              </p>
-              {currentUser.image && (
-                <p className="text-sm text-muted-foreground flex items-center">
-                  <ImageIcon className="h-4 w-4 mr-2" />
-                  Profile Picture Available
-                </p>
-              )}
-            </div>
-
-            {/* Urgent Notifications */}
-            {userNotifications.length > 0 && (
-              <div className="space-y-3">
-                <ul className="space-y-2">
-                  {userNotifications.map((notification) => (
-                    <li
-                      key={notification.id}
-                      className="bg-destructive/10 text-destructive rounded-md p-3 text-sm"
-                    >
-                      {notification.message}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-             {medications.length > 0 && (
-              <div className="mt-4 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">Medications</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {medications.filter((med) => med.user === currentUser.id)
-                  .map((med) => (
-                    <Card key={med.id} className="border shadow-sm">
-                      <CardContent className="p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-semibold flex items-center">
-                            <Pill className="h-5 w-5 mr-2 text-primary" />
-                            {med.pillName}
-                          </p>
-                          <span
-                            className={`text-xs font-medium px-2 py-1 rounded-md ${
-                              med.refills <= 1
-                                ? "bg-red-100 text-red-600"
-                                : "bg-green-100 text-green-600"
-                            }`}
-                          >
-                            {med.refills <= 1 ? "Low Refill" : "Sufficient Refills"}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          <ClipboardList className="inline h-4 w-4 mr-1" />
-                          <strong> Dosage:</strong> {med.dosage || "N/A"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          <Clock className="inline h-4 w-4 mr-1" />
-                          <strong> Frequency:</strong> {med.frequency || "N/A"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          <ClipboardIcon className="inline h-4 w-4 mr-1"/>
-                          <strong> Directions:</strong> {med.directions || "No directions"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          <Package className="inline h-4 w-4 mr-1" />
-                          <strong> Quantity:</strong> {med.numberOfPills ?? "Unknown"}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
+              <Card className="bg-gradient-to-r from-primary/90 to-primary shadow-lg">
+                <CardHeader className="p-8">
+                  <CardTitle className="text-4xl font-bold flex items-center gap-3 text-primary-foreground">
+                    <Users className="h-10 w-10" /> Nursing Home Analytics
+                  </CardTitle>
+                  <p className="mt-2 text-lg text-primary-foreground/90">
+                    Overview of patients, notifications, and medications
+                  </p>
+                </CardHeader>
+              </Card>
+              <Card className="shadow-md overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Patient Details</h3>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={prevSlide}
+                    className="h-8 w-8"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentIndex + 1} / {users.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={nextSlide}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <p className="text-lg font-semibold">
+                    {currentUser.first_name} {currentUser.last_name}
+                  </p>
+                  <p className="text-sm text-muted-foreground flex items-center">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Notifications:
+                  </p>
+                  {currentUser.image && (
+                    <p className="text-sm text-muted-foreground flex items-center">
+                      <ImageIcon className="h-4 w-4 mr-2" />
+                      Profile Picture Available
+                    </p>
+                  )}
+                </div>
+
+                {/* Urgent Notifications */}
+                {userNotifications.length > 0 && (
+                  <div className="space-y-3">
+                    <ul className="space-y-2">
+                      {userNotifications.map((notification) => (
+                        <li
+                          key={notification.id}
+                          className="bg-destructive/10 text-destructive rounded-md p-3 text-sm"
+                        >
+                          {notification.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {medications.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Medications</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {medications.filter((med) => med.user === currentUser.id)
+                      .map((med) => (
+                        <Card key={med.id} className="border shadow-sm">
+                          <CardContent className="p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="text-lg font-semibold flex items-center">
+                                <Pill className="h-5 w-5 mr-2 text-primary" />
+                                {med.pillName}
+                              </p>
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded-md ${
+                                  med.refills <= 1
+                                    ? "bg-red-100 text-red-600"
+                                    : "bg-green-100 text-green-600"
+                                }`}
+                              >
+                                {med.refills <= 1 ? "Low Refill" : "Sufficient Refills"}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              <ClipboardList className="inline h-4 w-4 mr-1" />
+                              <strong> Dosage:</strong> {med.dosage || "N/A"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              <Clock className="inline h-4 w-4 mr-1" />
+                              <strong> Frequency:</strong> {med.frequency || "N/A"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              <ClipboardIcon className="inline h-4 w-4 mr-1"/>
+                              <strong> Directions:</strong> {med.directions || "No directions"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              <Package className="inline h-4 w-4 mr-1" />
+                              <strong> Quantity:</strong> {med.numberOfPills ?? "Unknown"}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+     
+        </div>
+        <Card>
+  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <CardTitle className="text-2xl font-bold">Health Metrics</CardTitle>
+    <Activity size={24} />
+  </CardHeader>
+  <CardContent>
+    {healthData.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* BMI Chart */}
+        <div className="h-[300px]">
+          <h3 className="text-xl font-semibold">BMI</h3>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={healthData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="bmi" stroke="#8884d8" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Blood Pressure Chart */}
+        <div className="h-[300px]">
+          <h3 className="text-xl font-semibold">Blood Pressure</h3>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={healthData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="systolic" stroke="#ff7300" strokeWidth={2} />
+              <Line type="monotone" dataKey="diastolic" stroke="#82ca9d" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Weight Chart */}
+        <div className="h-[300px]">
+          <h3 className="text-xl font-semibold">Weight</h3>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={healthData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="weight" stroke="#8884d8" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Step Count Chart */}
+        <div className="h-[300px]">
+          <h3 className="text-xl font-semibold">Step Count</h3>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={healthData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="steps" stroke="#8884d8" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    ) : (
+      <p>Loading chart data...</p>
+    )}
+  </CardContent>
+</Card>
 
 
 
       </div>
-    </div>
     </div>
   )
 }
