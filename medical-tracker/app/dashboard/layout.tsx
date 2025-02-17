@@ -21,27 +21,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useGlobalContext();
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://localhost:8000/api/patients/${user.user}`);
-        setUsers(response.data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch users. Please try again later.');
-        console.error('Error fetching caretaker users:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUsers();
-  }, [user?.user]);
+  const user = useGlobalContext().user;
+  
+    
   if (!user) {
     return <p>No user logged in</p>;
   } else {

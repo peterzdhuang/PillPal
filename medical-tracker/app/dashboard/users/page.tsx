@@ -21,26 +21,28 @@ interface User {
 
 export default function UserListPage() {
   const { user } = useGlobalContext();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
 
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Adjust URL to your Django API endpoint
-        const response = await axios.get("http://localhost:8000/api/users/");
+        setLoading(true);
+        const response = await axios.get(`http://localhost:8000/api/caretaker/patients/${user}`);
         setUsers(response.data);
+        console.log(response.data)
+        setError(null);
       } catch (err) {
-        console.error("Error fetching users:", err);
-        setError("Error loading user list.");
+        setError('Failed to fetch users. Please try again later.');
+        console.error('Error fetching caretaker users:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUsers();
-  }, []);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
