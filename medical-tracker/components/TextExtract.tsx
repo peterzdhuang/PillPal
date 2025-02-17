@@ -6,16 +6,17 @@ import type { Worker } from 'tesseract.js';
 import { Camera, X } from 'lucide-react';
 import { convertJsonToMedicationFields } from './JsonToMed';
 
-export interface MedicationFields {
-  pharmacyName: string;
-  pharmacyAddress: string;
-  pillName: string;
+interface MedicationFields {
+  pharmacy_name: string;
+  address: string;
+  pill_name: string;
   date: string;
-  numberOfPills: string;
+  number_of_pills: string;
   frequency: string;
   directions: string;
   refills: string;
 }
+
 
 interface TextScannerProps {
   onClose: () => void;
@@ -36,9 +37,7 @@ export default function TextScanner({ onClose, onTextExtracted }: TextScannerPro
       const processText = async () => {
         try {
           // Wait for the backend to respond
-          console.log("HIT THE PLACE I WANTED");
           const json = await sendTextToBackend(extractedText);
-          console.log("Raw JSON:", json);
   
           // Convert the JSON to your MedicationFields object (if needed, await if it's async)
           const converted = convertJsonToMedicationFields(json);

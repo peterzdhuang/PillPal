@@ -101,11 +101,11 @@ export default function ScanPage() {
   // Handle OCR Text Extracted
   // -------------------------
   const handleTextExtracted = (fields: MedicationFields) => {
-    setPharmacyName(fields.pharmacyName || "");
-    setPharmacyAddress(fields.pharmacyAddress || "");
-    setPillName(fields.pillName || "");
+    setPharmacyName(fields.pharmacy_name || "");
+    setPharmacyAddress(fields.address || "");
+    setPillName(fields.pill_name || "");
     setDate(fields.date || "");
-    setNumberOfPills(fields.numberOfPills || "");
+    setNumberOfPills(fields.number_of_pills || "");
     setFrequency(fields.frequency || "");
     setDirections(fields.directions || "");
     setRefills(fields.refills || "");
