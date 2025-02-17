@@ -40,21 +40,21 @@ class UserAuthView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            
-            # Check for a provided patient_email in the request data
-            caretaker_email = request.data.get("caretaker_email")
-            if caretaker_email:
-                # Generate token
-                verification_token = generate_verification_token(user.email, caretaker_email)
 
-                # Save the token in your verification model (or use it directly in the email)
+            # Check if a patient email was provided (even though it's not part of the User model)
+            patient_email = request.data.get("patient_email")
+            if patient_email:
+                # Generate a token using the user's email and the provided patient email
+                verification_token = generate_verification_token(user.email, patient_email)
+
+                # Save the verification token (adjust your model fields as needed)
                 CaretakerVerification.objects.create(
                     token=verification_token,
-                    caretaker_email=user.email,
-                    patient_email=caretaker_email
+                    caretaker_email=user.email,  # The user who signed up is the caretaker
+                    patient_email=patient_email  # The provided patient email
                 )
 
-                # Compose your email as before and send it:
+                # Compose the verification email and send it to the patient
                 verification_link = f"http://localhost:8000/api/verify_patient/?token={verification_token}"
                 email_subject = "Patient Verification Request"
                 email_message = (
@@ -67,10 +67,10 @@ class UserAuthView(APIView):
                     email_subject,
                     email_message,
                     settings.DEFAULT_FROM_EMAIL,
-                    [caretaker_email],
+                    [patient_email],
                     fail_silently=False,
                 )
-            
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
