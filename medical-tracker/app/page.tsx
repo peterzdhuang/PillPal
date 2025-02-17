@@ -19,9 +19,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-background/95 backdrop-blur shadow-sm' : 'bg-transparent'
-      }`}>
+      <header className={`fixed top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'bg-background/95 backdrop-blur shadow-sm' : 'bg-transparent'}`}>
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Pills className="h-7 w-7 text-primary" />
@@ -32,13 +30,13 @@ export default function Home() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors" aria-label="Features">
               Features
             </Link>
-            <Link href="/login">
+            <Link href="/login" aria-label="Login">
               <Button variant="ghost" className="mr-2">Log in</Button>
             </Link>
-            <Link href="/signup">
+            <Link href="/signup" aria-label="Sign Up">
               <Button>Get Started</Button>
             </Link>
           </nav>
@@ -47,6 +45,7 @@ export default function Home() {
           <button 
             className="md:hidden p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -60,16 +59,11 @@ export default function Home() {
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b p-4">
             <nav className="flex flex-col space-y-4">
-              <Link href="#features" className="text-sm font-medium">
-                Features
-              </Link>
-              <Link href="#community" className="text-sm font-medium">
-                Community
-              </Link>
-              <Link href="/login">
+              <Link href="#features" className="text-sm font-medium" aria-label="Mobile Features">Features</Link>
+              <Link href="/login" aria-label="Mobile Login">
                 <Button variant="ghost" className="w-full">Log in</Button>
               </Link>
-              <Link href="/signup">
+              <Link href="/signup" aria-label="Mobile Sign Up">
                 <Button className="w-full">Get Started</Button>
               </Link>
             </nav>
@@ -92,12 +86,12 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/signup">
+                <Link href="/signup" aria-label="Start Now">
                   <Button size="lg" className="w-full sm:w-auto">
                     Start Now
                   </Button>
                 </Link>
-                <Link href="#features">
+                <Link href="#features" aria-label="See How It Works">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
                     See How It Works
                   </Button>
@@ -113,7 +107,6 @@ export default function Home() {
           className="relative w-full py-24 lg:py-32 bg-cover bg-center"
           style={{ backgroundImage: "url('/blue_banner.JPG')" }}
         >
-          {/* Overlay for better readability */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
           <div className="relative container px-4 md:px-6">
@@ -153,7 +146,34 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      
+      <footer className="bg-black text-white py-8 md:py-12">
+        <div className="container flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 md:space-x-12">
+          <div className="flex items-center space-x-2">
+            <Pills className="h-8 w-8 text-primary" />
+            <span className="font-semibold text-xl">Pillpal</span>
+          </div>
+          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-12 text-sm">
+            <Link href="/login" className="hover:text-primary transition-colors">Log in</Link>
+            <Link href="/signup" className="hover:text-primary transition-colors">Sign up</Link>
+            <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+          </div>
+          <div className="flex space-x-6">
+            <Link href="https://facebook.com" target="_blank" aria-label="Facebook">
+              <Bell className="h-6 w-6 text-white hover:text-primary transition-colors" />
+            </Link>
+            <Link href="https://twitter.com" target="_blank" aria-label="Twitter">
+              <Calendar className="h-6 w-6 text-white hover:text-primary transition-colors" />
+            </Link>
+            <Link href="https://instagram.com" target="_blank" aria-label="Instagram">
+              <Users className="h-6 w-6 text-white hover:text-primary transition-colors" />
+            </Link>
+          </div>
+        </div>
+        <div className="mt-8 text-center text-sm text-white/80">
+          <p>© 2025 Pillpal. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   )
 }
