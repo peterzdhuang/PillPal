@@ -1,42 +1,70 @@
-'use client'
-
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { PillIcon as Pills, Bell, Calendar, Users, Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  PillIcon as Pills,
+  Bell,
+  Calendar,
+  Users,
+  Menu,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-background/95 backdrop-blur shadow-sm' : 'bg-transparent'
-      }`}>
+      {/* Header */}
+      <header
+        className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+          isScrolled
+            ? "bg-background/95 backdrop-blur shadow-sm"
+            : "bg-transparent"
+        }`}
+      >
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Pills className="h-7 w-7 text-primary" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-              Pillpal
+              PillPal
             </span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="#features"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Features
             </Link>
+            <Link
+              href="#community"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Community
+            </Link>
+            <Link
+              href="/forum"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Forum
+            </Link>
             <Link href="/login">
-              <Button variant="ghost" className="mr-2">Log in</Button>
+              <Button variant="ghost" className="mr-2">
+                Log in
+              </Button>
             </Link>
             <Link href="/signup">
               <Button>Get Started</Button>
@@ -44,7 +72,7 @@ export default function Home() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className="md:hidden p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -66,8 +94,13 @@ export default function Home() {
               <Link href="#community" className="text-sm font-medium">
                 Community
               </Link>
+              <Link href="/forum" className="text-sm font-medium">
+                Forum
+              </Link>
               <Link href="/login">
-                <Button variant="ghost" className="w-full">Log in</Button>
+                <Button variant="ghost" className="w-full">
+                  Log in
+                </Button>
               </Link>
               <Link href="/signup">
                 <Button className="w-full">Get Started</Button>
@@ -85,21 +118,28 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-8 text-center">
               <div className="space-y-4 max-w-3xl">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                  Your <span className="text-primary">Smart</span> Medication Assistant
+                  Connect with{" "}
+                  <span className="text-primary">Health Experts</span> &amp; Peers
                 </h1>
                 <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
-                  Track your medications, set reminders, and connect with a supportive community. All in one place.
+                  Whether you're pursuing your personal health goals or facing a
+                  specific health challenge, join a community that supports you.
+                  Connect with professionals, share your journey, and be inspired.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/signup">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Start Now
+                    Join Now
                   </Button>
                 </Link>
                 <Link href="#features">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    See How It Works
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                  >
+                    Explore Features
                   </Button>
                 </Link>
               </div>
@@ -108,54 +148,79 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section 
-          id="features" 
+        <section
+          id="features"
           className="relative w-full py-24 lg:py-32 bg-cover bg-center"
           style={{ backgroundImage: "url('/blue_banner.JPG')" }}
         >
           {/* Overlay for better readability */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-
           <div className="relative container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center mb-16 text-white">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
-                Everything you need to stay on track
+                Powerful Tools for Your Health Journey
               </h2>
               <p className="max-w-[700px] text-lg text-white/80">
-                Powerful features to help you manage your medications with ease.
+                From smart medication tracking and timely reminders to personalized
+                health insights—everything you need is here.
               </p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              <FeatureCard 
+              <FeatureCard
                 icon={<Pills className="h-8 w-8" />}
                 title="Smart Scanning"
-                description="Scan medication labels to automatically set up tracking and reminders."
+                description="Quickly scan medication labels to set up tracking and reminders."
               />
-              <FeatureCard 
+              <FeatureCard
                 icon={<Bell className="h-8 w-8" />}
                 title="Timely Reminders"
-                description="Smart notification system for you and your caretakers."
+                description="Never miss a dose with our smart notification system."
               />
-              <FeatureCard 
+              <FeatureCard
                 icon={<Calendar className="h-8 w-8" />}
                 title="Track Progress"
-                description="Monitor adherence and get insights into your health journey."
+                description="Monitor adherence and gain insights into your health journey."
               />
-              <FeatureCard 
+              <FeatureCard
                 icon={<Users className="h-8 w-8" />}
-                title="Community Support"
-                description="Connect with others and get support from our verified community."
+                title="Community & Forum"
+                description="Connect with professionals and peers who share your goals."
               />
             </div>
           </div>
         </section>
 
+        {/* Community Section */}
+        <section id="community" className="py-24 bg-gray-50">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-4 text-center mb-16">
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+                Join a Thriving Community
+              </h2>
+              <p className="max-w-[700px] text-lg text-gray-600">
+                Connect with health professionals, share experiences, and support
+                each other in our interactive forum. Learn, grow, and thrive together.
+              </p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Link href="/forum">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Visit the Forum
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
-      
+      <footer className="bg-background border-t py-8">
+        <div className="container px-4 md:px-6 text-center text-sm text-gray-500">
+          © {new Date().getFullYear()} PillPal. All rights reserved.
+        </div>
+      </footer>
     </div>
-  )
+  );
 }
 
 interface FeatureCardProps {
