@@ -487,20 +487,19 @@ class AnalyzeText(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
             
-        users = User.objects.all()
-        # Exclude sensitive fields like the password from the returned data.
-        user_data = [
-            {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'is_caretaker': user.is_caretaker,
-                'password': user.password,
-            }
-            for user in users
-        ]
-        return Response(user_data)
+        med = {
+            'pharmacy_name': analysis_result['pharmacy_name'],
+            'address': analysis_result['address'],
+            'pill_name': analysis_result['pill_name'],
+            'date': analysis_result['date'],
+            'number_of_pills': analysis_result['number_of_pills'],
+            'frequency': analysis_result['frequency'],
+            'directions': analysis_result['directions'],
+            'refills': analysis_result['refills']
+        }
+
+
+        return Response(med)
     
     
 class PatientLogListCreateAPIView(generics.ListCreateAPIView):
