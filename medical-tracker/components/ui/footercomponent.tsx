@@ -45,9 +45,8 @@ export default function Layout({ children }: LayoutProps) {
             <Link href="https://instagram.com" target="_blank" aria-label="Instagram">
               <Users className="h-6 w-6 text-white hover:text-primary transition-colors" />
             </Link>
-          </div>
+          </div>  
         </div>
-
         {/* Copyright */}
         <div className="mt-8 text-center text-sm text-white/80">
           <p>© 2025 Pillpal. All rights reserved.</p>
