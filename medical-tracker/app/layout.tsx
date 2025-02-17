@@ -36,7 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <GlobalContext.Provider value={{ user, updateUser }}>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        
+        <body className={inter.className}>{children}<script src="//code.tidio.co/r2n39wnqp7oy9fhwlmcsjfoldkvafkbo.js" async></script></body>
       </html>
     </GlobalContext.Provider>
   );
