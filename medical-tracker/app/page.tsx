@@ -89,14 +89,16 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-8 text-center">
               <div className="space-y-4 max-w-3xl">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                  Connect with{" "}
-                  <span className="text-primary">Health Experts</span> &amp; Peers
-                </h1>
-                <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
-                  Whether you're pursuing your personal health goals or facing a
-                  specific health challenge, join a community that supports you.
-                  Connect with professionals, share your journey, and be inspired.
-                </p>
+                Your Personalized 
+                <span className="text-primary hover:underline transition duration-300"> Medication Assistant </span>
+              </h1>
+              <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
+                Effortlessly track
+                your medications, receivetimely reminders,  
+                and stay connected with health experts
+                and a supportive community
+              </p>
+
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/signup" aria-label="Start Now">
