@@ -41,12 +41,6 @@ export default function DashboardLayout({
                 <span>Forum</span>
               </Button>
             </Link>
-            <Link href={`/dashboard/profile/${user}`}>
-              <Button variant="ghost" size="sm" className="w-9 px-0">
-                <SettingsIcon className="h-4 w-4" />
-                <span className="sr-only">Profile</span>
-              </Button>
-            </Link>
           </nav>
         </div>
       </header>
@@ -64,18 +58,18 @@ export default function DashboardLayout({
               <span>Dashboard</span>
             </Link>
             <Link
+              href={`/dashboard/health`}
+              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
+            >
+              <HeartPulse className="h-5 w-5" />
+              <span>Health Tracker</span>
+            </Link>
+            <Link
               href={`/dashboard/medications`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <PillIcon className="h-5 w-5" />
               <span>Medications</span>
-            </Link>
-            <Link
-              href={`/dashboard/health-tracker`}
-              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-            >
-              <HeartPulse className="h-5 w-5" />
-              <span>Health Tracker</span>
             </Link>
             <Link
               href={`/dashboard/scan`}
@@ -92,7 +86,7 @@ export default function DashboardLayout({
               <span>Users</span>
             </Link>
             <Link
-              href={`/dashboard/settings`}
+              href={`/dashboard/profile/${user}`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <SettingsIcon className="h-5 w-5" />
