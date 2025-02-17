@@ -8,6 +8,7 @@ import {
   SettingsIcon,
   MessageCircle,
   HeartPulse,
+  FileHeart,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -72,10 +73,10 @@ export default function DashboardLayout({
               <span>Logs</span>
             </Link>
             <Link
-              href={`/dashboard/medication-details`}
+              href={`/dashboard/medication`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
-              <Scan className="h-5 w-5" />
+              <FileHeart className="h-5 w-5" />
               <span>Medication Details</span>
             </Link>
             <Link
