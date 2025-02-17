@@ -500,3 +500,51 @@ class AnalyzeText(APIView):
             for user in users
         ]
         return Response(user_data)
+
+class CaretakerUsersView(APIView):
+    def get(self, request, caretaker_id):
+        """
+        Retrieve all users who have the specified caretaker's email as their caretaker_email.
+        
+        Args:
+            request: Django HTTP request object
+            caretaker_id (int): The ID of the caretaker user
+            
+        Returns:
+            JsonResponse: A JSON response containing user information for all users under the caretaker
+        """
+
+        try:
+            # Get the caretaker user
+            caretaker = User.objects.get(id=caretaker_id)
+            
+            # Get all users who have this caretaker's email as their caretaker_email
+            users = User.objects.filter(caretaker_email=caretaker.email)
+            
+            # Format the response data
+            users_data = []
+            for user in users:
+                user_data = {
+                    'id': user.id,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'phone': user.phone,
+                    'is_caretaker': user.is_caretaker,
+                    'password': user.password,
+                    'image': user.image.url if user.image else None,
+                    'notifications': user.notifications,
+                    'caretaker_email': user.caretaker_email,
+                }
+                users_data.append(user_data)
+                
+            return JsonResponse(users_data, safe=False)
+            
+        except ObjectDoesNotExist:
+            return JsonResponse([], safe=False)
+        except Exception as e:
+            # Log the error here if needed
+            return JsonResponse(
+                {"error": "An error occurred while fetching users"}, 
+                status=500
+            )
