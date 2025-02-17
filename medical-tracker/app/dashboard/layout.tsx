@@ -85,7 +85,7 @@ export default function DashboardLayout({
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <FileHeart className="h-5 w-5" />
-              <span>Medication Details</span>
+              <span>Learn more</span>
             </Link>
             <Link
               href={`/dashboard/users`}
