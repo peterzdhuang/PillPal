@@ -8,6 +8,10 @@ import {
   Users,
   Menu,
   X,
+  Activity,
+  Send,
+  MessageCircle,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -147,6 +151,26 @@ export default function Home() {
                 icon={<Users className="h-8 w-8" />}
                 title="Community & Forum"
                 description="Connect with professionals and peers who share your goals."
+              />
+              <FeatureCard
+                icon={<Activity className="h-8 w-8" />}
+                title="Patient Monitoring"
+                description="Caregivers can track medication adherence and receive alerts for missed doses."
+              />
+              <FeatureCard
+                icon={<Send className="h-8 w-8" />}
+                title="Automated Notifications"
+                description="Get real-time alerts for medication intake, refills, and health updates."
+              />
+              <FeatureCard
+                icon={<MessageCircle className="h-8 w-8" />}
+                title="AI Chatbot Support"
+                description="Get instant answers to medication and health-related questions."
+              />
+              <FeatureCard
+                icon={<MapPin className="h-8 w-8" />}
+                title="Pharmacy Locator"
+                description="Find the nearest pharmacy based on your location."
               />
             </div>
           </div>
