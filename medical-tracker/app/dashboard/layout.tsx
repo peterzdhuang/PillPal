@@ -8,7 +8,9 @@ import {
   MessageCircle,
   HeartPulse,
   FileHeart,
-  Weight,
+  MessageSquareHeartIcon,
+  HouseIcon,
+  FileIcon
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -63,7 +65,7 @@ export default function DashboardLayout({
               href={`/dashboard/${user}`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
-              <PillIcon className="h-5 w-5" />
+              <HouseIcon className="h-5 w-5" />
               <span>Dashboard</span>
             </Link>
             <Link
@@ -77,7 +79,7 @@ export default function DashboardLayout({
               href={`/dashboard/logs`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
-              <PillIcon className="h-5 w-5" />
+              <FileIcon className="h-5 w-5" />
               <span>Logs</span>
             </Link>
             <Link
@@ -88,11 +90,11 @@ export default function DashboardLayout({
               <span>Learn more</span>
             </Link>
             <Link
-              href={`/dashboard/lifehabit`}
+              href={`/dashboard/forum`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
-              <Weight className="h-5 w-5" />
-              <span>Life Habit</span>
+              <MessageSquareHeartIcon className="h-5 w-5" />
+              <span>Community</span>
             </Link>
             <Link
               href={`/dashboard/users`}
