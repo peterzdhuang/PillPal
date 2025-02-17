@@ -1,18 +1,7 @@
 "use client";
 import type React from "react";
 import Link from "next/link";
-import {
-  PillIcon,
-  Users,
-  SettingsIcon,
-  MessageCircle,
-  HeartPulse,
-  FileHeart,
-  MessageSquareHeartIcon,
-  HouseIcon,
-  FileIcon,
-  LogOutIcon
-} from "lucide-react";
+import { Pill, Users, Settings, MessageCircle, Activity, FileText, BarChart2, LayoutDashboard, LogOutIcon, MessageSquareHeartIcon, HeartPulse, HouseIcon, FileHeart, FileIcon, PillIcon } from 'lucide-react'
 
 import { Button } from "@/components/ui/button";
 import { useGlobalContext } from "@/app/layout";
@@ -55,91 +44,51 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <Link href={`/dashboard/${user}`} className="flex items-center space-x-2">
-            <PillIcon className="h-6 w-6" />
-            <span className="font-bold">PillPal</span>
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content with Sidebar */}
-      <div className="flex flex-1">
+      <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 border-r bg-gray-100 p-4">
-          <nav className="space-y-2">
-            {caretaker ? (
-              <>
-                <Link
-                    href={`/dashboard/users`}
-                    className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                    <HouseIcon className="h-5 w-5" />
-                    <span>CareBoard</span>
-                </Link>
-                <Link
-                  href={`/dashboard/logs`}
-                  className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                  <FileIcon className="h-5 w-5" />
-                  <span>Logs</span>
-                </Link>
-                <Link
-                  href={`/dashboard/medication`}
-                  className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                  <FileHeart className="h-5 w-5" />
-                  <span>Learn more</span>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                    href={`/dashboard/${user}`}
-                    className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                    <HouseIcon className="h-5 w-5" />
-                    <span>Dashboard</span>
-                </Link>
-                <Link
-                  href={`/dashboard/health`}
-                  className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                  <HeartPulse className="h-5 w-5" />
-                  <span>Health Tracker</span>
-                </Link>
-                <Link
-                  href={`/dashboard/forum`}
-                  className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-                >
-                  <MessageSquareHeartIcon className="h-5 w-5" />
-                  <span>Community</span>
-                </Link>
-              </>
-            )}
-            <Link
-              href={`/dashboard/profile/${user}`}
-              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-            >
-              <SettingsIcon className="h-5 w-5" />
-              <span>Settings</span>
-            </Link>
-
-            <Link
-              href={`/`}
-              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
-            >
-              <LogOutIcon className="h-5 w-5" />
-              <span>Logout</span>
-            </Link>
-          </nav>
+        <aside className="w-64 border-r text-gray-600 flex h-fullbg-white p-4 shadow-md">
+            <nav className="space-y-2">
+                <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                    <div className="container flex h-14 items-center justify-between">
+                    <Link href={`/`} className="flex items-center space-x-2">
+                        <PillIcon className="h-7 w-7 text-[#21b4a5]" />
+                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#21b4a5] to-[#21b4a5]/70">PillPal</span>
+                    </Link>
+                    </div>
+                </header>
+                {caretaker ? (
+                <>
+                    <SidebarLink href={`/dashboard/users`} icon={HouseIcon} label="CareBoard" />                      
+                    <SidebarLink href={`/dashboard/logs`} icon={FileIcon} label="Logs" />  
+                    <SidebarLink href={`/dashboard/medication`} icon={FileHeart} label="Learn More" />                    
+                </>
+                ) : (
+                <>
+                    <SidebarLink href={`/dashboard/${user}`} icon={HouseIcon} label="Dashboard" />                    
+                    <SidebarLink href={`/dashboard/health`} icon={HeartPulse} label="Health Tracker" />
+                    <SidebarLink href={`/dashboard/forum`} icon={MessageSquareHeartIcon} label="Community" />
+                </>
+                )}
+                <SidebarLink href={`/dashboard/profile/${user}`} icon={Settings} label="Settings" />
+                <SidebarLink href={`/`} icon={LogOutIcon} label="Logout" />
+            </nav>
         </aside>
 
         {/* Main content area */}
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-6 overflow-y-auto h-screen flex flex-col bg-white">  
+            <div className="flex-1">{children}</div>
+        </main>
       </div>
     </div>
   );
 }
+
+function SidebarLink({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
+    return (
+      <Link href={href} className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
+        <Icon className="w-5 h-5 text-[#21b4a5]" />
+        <span className="text-gray-700 flex-grow">{label}</span>
+      </Link>
+    )
+  }
