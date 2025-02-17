@@ -3,12 +3,12 @@ import type React from "react";
 import Link from "next/link";
 import {
   PillIcon,
-  Scan,
   Users,
   SettingsIcon,
   MessageCircle,
   HeartPulse,
   FileHeart,
+  Weight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,13 @@ export default function DashboardLayout({
             >
               <FileHeart className="h-5 w-5" />
               <span>Learn more</span>
+            </Link>
+            <Link
+              href={`/dashboard/lifehabit`}
+              className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
+            >
+              <Weight className="h-5 w-5" />
+              <span>Life Habit</span>
             </Link>
             <Link
               href={`/dashboard/users`}
