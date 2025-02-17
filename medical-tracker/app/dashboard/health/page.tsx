@@ -1,328 +1,215 @@
-"use client";
-import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  HeartPulse,
-  Smile,
-  CloudMoon,
-  Activity,
-  Scales,
-  AlertCircle,
-} from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+"use client"
 
-export default function HealthTrackerPage() {
-  // Form fields
-  const [age, setAge] = useState<number | "">("");
-  const [bmi, setBmi] = useState<number | "">("");
-  const [bloodPressure, setBloodPressure] = useState(""); // e.g., "120/80"
-  const [sleepHours, setSleepHours] = useState<number | "">("");
-  const [dietQuality, setDietQuality] = useState<number | "">(""); // scale 1–5
-  const [dailySteps, setDailySteps] = useState<number | "">("");
-  const [mood, setMood] = useState<number | "">(""); // scale 1–10
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Activity, Weight, Heart, Footprints } from 'lucide-react'
 
-  // Computed health score
-  const [healthScore, setHealthScore] = useState<number>(0);
-  const [healthMessage, setHealthMessage] = useState("");
+type HealthData = {
+  date: string;
+  bmi?: number;
+  systolic?: number;
+  diastolic?: number;
+  weight?: number;
+  steps?: number;
+}
 
-  // Simple logic for calculating a “health score”
-  // (Feel free to refine or replace with any formula you want)
-  const calculateHealthScore = () => {
-    let score = 0;
+export default function Dashboard() {
+  const [height, setHeight] = useState('')
+  const [weight, setWeight] = useState('')
+  const [systolic, setSystolic] = useState('')
+  const [diastolic, setDiastolic] = useState('')
+  const [steps, setSteps] = useState('')
+  const [healthData, setHealthData] = useState<HealthData[]>([])
 
-    // Age: younger might get a slight advantage, older might get a slight penalty
-    // (You can make this more sophisticated!)
-    if (typeof age === "number" && age > 0) {
-      if (age <= 30) score += 15;
-      else if (age <= 50) score += 10;
-      else score += 5;
+  useEffect(() => {
+    const storedData = localStorage.getItem('healthData')
+    if (storedData) {
+      setHealthData(JSON.parse(storedData))
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('healthData', JSON.stringify(healthData))
+  }, [healthData])
+
+  const addHealthData = () => {
+    const newData: HealthData = { date: new Date().toLocaleDateString() }
+
+    if (height && weight) {
+      const heightInMeters = parseFloat(height) / 100
+      const weightInKg = parseFloat(weight)
+      newData.bmi = parseFloat((weightInKg / (heightInMeters * heightInMeters)).toFixed(1))
+      newData.weight = weightInKg
     }
 
-    // BMI: an approximate healthy range is 18.5–24.9
-    if (typeof bmi === "number" && bmi > 0) {
-      if (bmi >= 18.5 && bmi <= 24.9) score += 15;
-      else if (bmi < 18.5 || bmi > 30) score += 5; 
-      else score += 10;
+    if (systolic && diastolic) {
+      newData.systolic = parseFloat(systolic)
+      newData.diastolic = parseFloat(diastolic)
     }
 
-    // Blood pressure: Just a simplistic approach
-    // e.g., "120/80" considered normal
-    if (bloodPressure) {
-      // You might parse the actual values, but for simplicity:
-      if (bloodPressure === "120/80") {
-        score += 15;
-      } else {
-        score += 5;
-      }
+    if (steps) {
+      newData.steps = parseFloat(steps)
     }
 
-    // Sleep hours
-    if (typeof sleepHours === "number" && sleepHours > 0) {
-      if (sleepHours >= 7 && sleepHours <= 9) score += 15;
-      else if (sleepHours < 5 || sleepHours > 10) score += 5;
-      else score += 10;
-    }
-
-    // Diet quality (1–5)
-    if (typeof dietQuality === "number" && dietQuality > 0) {
-      score += dietQuality * 3; // If 5 = 15 points
-    }
-
-    // Daily steps
-    if (typeof dailySteps === "number" && dailySteps > 0) {
-      if (dailySteps >= 10000) score += 15;
-      else if (dailySteps >= 5000) score += 10;
-      else score += 5;
-    }
-
-    // Mood (1–10)
-    if (typeof mood === "number" && mood > 0) {
-      score += mood; // If mood=10 => +10
-    }
-
-    // Cap the score at 100 (optional)
-    if (score > 100) score = 100;
-
-    setHealthScore(score);
-    
-    // Generate a quick message based on score
-    if (score >= 80) {
-      setHealthMessage("Excellent! You are on a great track.");
-    } else if (score >= 60) {
-      setHealthMessage("Good job! Keep working toward improvement.");
-    } else if (score >= 40) {
-      setHealthMessage("Fair. There’s room to grow in your daily habits!");
-    } else {
-      setHealthMessage("Below average. Let’s set new goals to get you healthier.");
-    }
-  };
+    setHealthData([...healthData, newData])
+    setHeight('')
+    setWeight('')
+    setSystolic('')
+    setDiastolic('')
+    setSteps('')
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <Card className="bg-gradient-to-r from-primary/90 to-primary shadow-lg text-white">
-          <CardHeader>
-            <CardTitle className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
-              <span className="text-3xl font-bold">Health Tracker</span>
-            </CardTitle>
+    <div className="container mx-auto p-4">
+      <h1 className="text-4xl font-bold mb-8 text-center">Senior Health Tracker</h1>
+      
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Enter Today's Health Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="height" className="text-lg">Height (cm)</Label>
+              <Input 
+                id="height" 
+                type="number" 
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="weight" className="text-lg">Weight (kg)</Label>
+              <Input 
+                id="weight" 
+                type="number" 
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="systolic" className="text-lg">Systolic BP</Label>
+              <Input 
+                id="systolic" 
+                type="number" 
+                value={systolic}
+                onChange={(e) => setSystolic(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="diastolic" className="text-lg">Diastolic BP</Label>
+              <Input 
+                id="diastolic" 
+                type="number" 
+                value={diastolic}
+                onChange={(e) => setDiastolic(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="steps" className="text-lg">Steps</Label>
+              <Input 
+                id="steps" 
+                type="number" 
+                value={steps}
+                onChange={(e) => setSteps(e.target.value)}
+                className="text-lg"
+              />
+            </div>
+          </div>
+          <Button onClick={addHealthData} className="w-full mt-4 text-lg">Save Today's Data</Button>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-2xl font-bold">BMI</CardTitle>
+            <Activity size={24} />
           </CardHeader>
           <CardContent>
-            <p className="text-white/90">
-              Enter your health metrics to see where you stand and set a goal.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Input Form */}
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="text-lg">Your Health Metrics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6 mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Age */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="age" className="text-sm text-gray-500">
-                  Age
-                </label>
-                <Input
-                  id="age"
-                  type="number"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="e.g. 29"
-                />
-              </div>
-              {/* BMI */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="bmi" className="text-sm text-gray-500">
-                  Body Mass Index (BMI)
-                </label>
-                <Input
-                  id="bmi"
-                  type="number"
-                  value={bmi}
-                  onChange={(e) => setBmi(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="e.g. 22.5"
-                />
-              </div>
-              {/* Blood Pressure */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="bloodPressure" className="text-sm text-gray-500">
-                  Blood Pressure
-                </label>
-                <Input
-                  id="bloodPressure"
-                  value={bloodPressure}
-                  onChange={(e) => setBloodPressure(e.target.value)}
-                  placeholder='e.g. "120/80"'
-                />
-              </div>
-              {/* Sleep */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="sleepHours" className="text-sm text-gray-500">
-                  Sleep (hours per night)
-                </label>
-                <Input
-                  id="sleepHours"
-                  type="number"
-                  value={sleepHours}
-                  onChange={(e) => setSleepHours(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="e.g. 7"
-                />
-              </div>
-              {/* Diet Quality */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="dietQuality" className="text-sm text-gray-500">
-                  Diet Quality (1–5)
-                </label>
-                <Input
-                  id="dietQuality"
-                  type="number"
-                  value={dietQuality}
-                  onChange={(e) =>
-                    setDietQuality(e.target.value ? Number(e.target.value) : "")
-                  }
-                  placeholder="1 = poor, 5 = excellent"
-                />
-              </div>
-              {/* Daily Steps */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="dailySteps" className="text-sm text-gray-500">
-                  Daily Steps
-                </label>
-                <Input
-                  id="dailySteps"
-                  type="number"
-                  value={dailySteps}
-                  onChange={(e) =>
-                    setDailySteps(e.target.value ? Number(e.target.value) : "")
-                  }
-                  placeholder="e.g. 8000"
-                />
-              </div>
-              {/* Mood */}
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="mood" className="text-sm text-gray-500">
-                  Mood (1–10)
-                </label>
-                <Input
-                  id="mood"
-                  type="number"
-                  value={mood}
-                  onChange={(e) => setMood(e.target.value ? Number(e.target.value) : "")}
-                  placeholder="1 = unhappy, 10 = excellent mood"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end">
-              <Button onClick={calculateHealthScore}>Calculate Health Score</Button>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="bmi" stroke="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Results */}
         <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="flex items-center space-x-2 text-gray-700">
-              <HeartPulse className="w-5 h-5" />
-              <span>Your Health Score</span>
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-2xl font-bold">Blood Pressure</CardTitle>
+            <Heart size={24} />
           </CardHeader>
-          <CardContent className="space-y-4 mt-2">
-            <div className="flex items-center space-x-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex flex-col items-center">
-                      <Badge
-                        variant="outline"
-                        className="text-base text-primary px-4 py-2"
-                      >
-                        {healthScore}/100
-                      </Badge>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[200px]">
-                    <p className="text-sm">
-                      Score reflects an approximate measure based on your inputs.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <div className="text-lg text-gray-600">{healthMessage}</div>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="systolic" stroke="#8884d8" strokeWidth={2} />
+                  <Line type="monotone" dataKey="diastolic" stroke="#82ca9d" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="bg-green-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-green-700 text-sm">
-                    <Activity className="h-4 w-4" />
-                    <span>Daily Steps</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-green-700">
-                    {dailySteps || 0}
-                  </p>
-                  <p className="text-xs text-green-600">Walk more for a healthy heart!</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-blue-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-blue-700 text-sm">
-                    <CloudMoon className="h-4 w-4" />
-                    <span>Sleep</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-blue-700">
-                    {sleepHours || 0} <span className="text-sm">hrs</span>
-                  </p>
-                  <p className="text-xs text-blue-600">Aim for 7–9 hours!</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-yellow-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-yellow-700 text-sm">
-                    <Smile className="h-4 w-4" />
-                    <span>Mood</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-yellow-700">
-                    {mood || 0}/10
-                  </p>
-                  <p className="text-xs text-yellow-600">Mental well-being matters!</p>
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-2xl font-bold">Weight</CardTitle>
+            <Weight size={24} />
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="weight" stroke="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Example: potential alerts or suggestions */}
-            {healthScore < 40 && (
-              <div className="flex items-center space-x-2 bg-red-50 border-l-4 border-red-400 p-4 rounded">
-                <AlertCircle className="text-red-600 w-5 h-5" />
-                <p className="text-sm text-red-600">
-                  You’re scoring below average. Consider talking to a healthcare
-                  professional or adjusting your daily habits to improve!
-                </p>
-              </div>
-            )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-2xl font-bold">Step Count</CardTitle>
+            <Footprints size={24} />
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="steps" stroke="#8884d8" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  );
+  )
 }
