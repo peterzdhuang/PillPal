@@ -48,7 +48,7 @@ export default function DashboardLayout({
       <div className="flex">
         {/* Sidebar */}
         <aside className="w-64 border-r text-gray-600 flex h-fullbg-white p-4 shadow-md">
-            <nav className="space-y-2">
+            <nav className="space-y-2 flex-grow">
                 <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <div className="container flex h-14 items-center justify-between">
                     <Link href={`/`} className="flex items-center space-x-2">
