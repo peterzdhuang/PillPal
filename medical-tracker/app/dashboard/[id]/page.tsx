@@ -281,7 +281,7 @@ export default function DashboardPage() {
       );
       setAlertInfo({
         title: "Medication Taken",
-        message: `${med.pillName} taken! Next dose on }`,
+        message: `${med.pillName} taken!`,
       })
       setShowAlert(true)
     } catch (err) {
@@ -483,110 +483,119 @@ export default function DashboardPage() {
       </Badge>
     </div>
   </CardHeader>
-      <CardContent className="p-6">
-        {scheduleData.length === 0 ? (
-          <div className="text-center py-8">
-            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No medications scheduled yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {scheduleData
-              .flatMap((medication) => {
-                const times = getScheduleTimes(medication.frequency || '');
-                return times.map(time => ({
-                  ...medication,
-                  id: `${medication.id}-${time}`,
-                  time: time,
-                }));
-              })
-              .sort((a, b) => a.time.localeCompare(b.time))
-              .map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={cn(
-                        "h-10 w-10 rounded-full flex items-center justify-center",
-                        item.status === "taken"
-                          ? "bg-green-100 text-green-600"
-                          : item.daysUntilDue !== null && item.daysUntilDue <= 3
-                          ? "bg-red-100 text-red-600"
-                          : "bg-green-100 text-green-600"
-                      )}
-                    >
-                      <BellRing className="h-5 w-5" />
+  <CardContent className="p-0">
+        <div className="h-[400px] overflow-y-auto px-6 custom-scrollbar">
+          {scheduleData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center py-8">
+              <Calendar className="h-12 w-12 text-gray-300 mb-4" />
+              <p className="text-gray-500">No medications scheduled yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 py-6">
+              {scheduleData
+                .flatMap((medication) => {
+                  const times = getScheduleTimes(medication.frequency || "")
+                  return times.map((time) => ({
+                    ...medication,
+                    id: `${medication.id}-${time}`,
+                    time: time,
+                  }))
+                })
+                .sort((a, b) => a.time.localeCompare(b.time))
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div
+                        className={cn(
+                          "h-10 w-10 rounded-full flex items-center justify-center",
+                          item.status === "taken"
+                            ? "bg-green-100 text-green-600"
+                            : item.daysUntilDue !== null && item.daysUntilDue <= 3
+                              ? "bg-red-100 text-red-600"
+                              : "bg-green-100 text-green-600",
+                        )}
+                      >
+                        <BellRing className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{item.pillName}</p>
+                        <p className="text-sm text-gray-500">{formatTime(item.time)}</p>
+                        {item.directions ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="text-xs text-gray-400 mt-1 line-clamp-1">Directions: {item.directions}</p>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-[300px]">
+                                <p className="text-sm">{item.directions}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <p className="text-xs text-gray-400 mt-1 italic">No specific directions provided</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{item.pillName}</p>
-                      <p className="text-sm text-gray-500">
-                        {formatTime(item.time)}
-                      </p>
-                      {item.directions ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <p className="text-xs text-gray-400 mt-1 line-clamp-1">
-                                Directions: {item.directions}
-                              </p>
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-[300px]">
-                              <p className="text-sm">{item.directions}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-1 italic">
-                          No specific directions provided
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <Badge
-                      variant={
-                        item.status === "taken"
-                          ? "success"
+                    <div className="flex items-center space-x-4">
+                      <Badge
+                        variant={
+                          item.status === "taken"
+                            ? "success"
+                            : item.daysUntilDue === null
+                              ? "outline"
+                              : item.daysUntilDue <= 3
+                                ? "destructive"
+                                : "default"
+                        }
+                        className={item.status === "taken" ? "text-[#21a4b5]" : ""}
+                      >
+                        {item.status === "taken"
+                          ? "Taken"
                           : item.daysUntilDue === null
-                          ? "outline"
-                          : item.daysUntilDue <= 3
-                          ? "destructive"
-                          : "default"
-                      }
-                    >
-                      {item.status === "taken"
-                        ? "Taken"
-                        : item.daysUntilDue === null
-                        ? "No date"
-                        : item.daysUntilDue < 0
-                        ? `${Math.abs(item.daysUntilDue)}d overdue`
-                        : `Due in ${item.daysUntilDue}d`}
-                    </Badge>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleTakeMedication(item.id, item)}
-                      >
-                        Take
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openRefillModal(item)}
-                        disabled={item.refills === 0}
-                      >
-                        Refill
-                      </Button>
+                            ? "No date"
+                            : item.daysUntilDue < 0
+                              ? `${Math.abs(item.daysUntilDue)}d overdue`
+                              : `Due in ${item.daysUntilDue}d`}
+                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleTakeMedication(item.id, item)}>
+                          Take
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openRefillModal(item)}
+                          disabled={item.refills === 0}
+                        >
+                          Refill
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-          </div>
-        )}
+                ))}
+            </div>
+          )}
+        </div>
       </CardContent>
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #6b7280;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #1c8f9e;
+        }
+      `}</style>
     </Card>
 
         {/* Medication List */}
