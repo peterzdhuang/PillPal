@@ -96,7 +96,7 @@ export default function SignUpPage() {
                     I am a caretaker
                   </label>
                 </div>
-                {isCaretaker && (
+                {/* {isCaretaker && (
                   <div className="space-y-2 rounded-lg border p-4">
                     <Label htmlFor="patient-email">Patient's Email Address</Label>
                     <Input
@@ -112,7 +112,7 @@ export default function SignUpPage() {
                       Your patient will receive an email to confirm this connection
                     </p>
                   </div>
-                )}
+                )} */}
                 <div className="flex items-center space-x-2">
                   <Checkbox id="terms" required />
                   <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
