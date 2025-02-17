@@ -14,7 +14,7 @@ function shuffleArray<T>(array: T[]): T[] {
 export default function HealthInformationPage() {
   // Initial medications value for demonstration.
   const [medications, setMedications] = useState(
-    "Aspirin, Ibuprofen, Paracetamol, Metformin, Lisinopril"
+    ""
   );
 
   // Mock data arrays.
