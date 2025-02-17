@@ -14,7 +14,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-const { changeLanguage } = useLanguageContext();
   // Caretaker data & caretaker email input
   const [caretaker, setCaretaker] = useState<any>(null)
   const [caretakerEmail, setCaretakerEmail] = useState<string>("")
@@ -70,6 +69,7 @@ const { changeLanguage } = useLanguageContext();
                     <SidebarLink href={`/dashboard/${user}`} icon={HouseIcon} label="Dashboard" />                    
                     <SidebarLink href={`/dashboard/health`} icon={HeartPulse} label="Health Tracker" />
                     <SidebarLink href={`/dashboard/forum`} icon={MessageSquareHeartIcon} label="Community" />
+                    <SidebarLink href={`/dashboard/medication`} icon={FileHeart} label="Learn More" />   
                 </>
                 )}
                 <SidebarLink href={`/dashboard/profile/${user}`} icon={Settings} label="Settings" />
