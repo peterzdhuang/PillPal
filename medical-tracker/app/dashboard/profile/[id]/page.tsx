@@ -209,16 +209,6 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl py-6">
-      {/* Back button */}
-      <div className="flex items-center mb-4">
-        <Link
-          href={`/dashboard/${user}`}
-          className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </Link>
-      </div>
 
       {/* Page header */}
       <div className="mb-8 space-y-4">
