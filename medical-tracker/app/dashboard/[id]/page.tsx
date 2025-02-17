@@ -465,20 +465,22 @@ export default function DashboardPage() {
           </Card>
         </div>
         
-        {/* Medication Schedule */}
-        <Card>
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                <span>Daily Schedule</span>
-              </CardTitle>
-              <Badge variant="outline" className="text-primary">
-                Set a Reminder Below!
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
+
+    <Card className="h-[600px] flex flex-col">
+      <CardHeader className="border-b flex-none">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center space-x-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            <span>Daily Schedule</span>
+          </CardTitle>
+          <Badge variant="outline" className="text-primary">
+            Set a Reminder Below!
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto custom-scrollbar">
+          <div className="p-6">
             {scheduleData.length === 0 ? (
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -581,138 +583,202 @@ export default function DashboardPage() {
                   ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Medication List */}
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle>Medication List</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 ml-4 mr-4 mt-2">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="text-left text-sm font-medium text-gray-400 p-2">
-                    Medication
-                  </th>
-                  <th className="text-left text-sm font-medium text-gray-400 p-2">
-                    Quantity
-                  </th>
-                  <th className="text-left text-sm font-medium text-gray-400 p-2">
-                    Frequency
-                  </th>
-                  <th className="text-left text-sm font-medium text-gray-400 p-2">
-                    Refills
-                  </th>
-                  <th className="text-right text-sm font-medium text-gray-400 p-2">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {medications.map((med) => (
-                  <tr key={med.id} className="border-b last:border-b-0">
-                    <td className="p-2">
-                      {editingId === med.id ? (
-                        <Input
-                          id="pillName"
-                          value={editFields.pillName}
-                          onChange={(e) =>
-                            setEditFields({ ...editFields, pillName: e.target.value })
-                          }
-                        />
-                      ) : (
-                        <p className="font-medium">{med.pillName}</p>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      {editingId === med.id ? (
-                        <Input
-                          id="numberOfPills"
-                          type="number"
-                          value={editFields.numberOfPills ?? ""}
-                          onChange={(e) =>
-                            setEditFields({
-                              ...editFields,
-                              numberOfPills: Number(e.target.value),
-                            })
-                          }
-                        />
-                      ) : (
-                        <p>{med.numberOfPills} pills</p>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      {editingId === med.id ? (
-                        <Input
-                          id="frequency"
-                          value={editFields.frequency ?? ""}
-                          onChange={(e) =>
-                            setEditFields({ ...editFields, frequency: e.target.value })
-                          }
-                        />
-                      ) : (
-                        <p>{med.frequency || "No frequency specified"}</p>
-                      )}
-                    </td>
-                    <td className="p-2">
-                      {editingId === med.id ? (
-                        <Input
-                          id="refills"
-                          type="number"
-                          value={editFields.refills}
-                          onChange={(e) =>
-                            setEditFields({ ...editFields, refills: Number(e.target.value) })
-                          }
-                        />
-                      ) : (
-                        <p>{med.refills} refills</p>
-                      )}
-                    </td>
-                    <td className="p-2 text-right space-x-2">
-                      {editingId === med.id ? (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleSaveEdit(med.id)}
-                          >
-                            <Save className="h-5 w-5" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleCancelEdit}
-                          >
-                            <X className="h-5 w-5" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEditMedication(med)}
-                          >
-                            <Edit className="h-5 w-5" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteMedication(med.id)}
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </>
-                      )}
-                    </td>
+        <style jsx global>{`
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
+          }
+        `}</style>
+      </CardContent>
+    </Card>
+
+    <Card className="h-[500px] flex flex-col">
+      <CardHeader className="border-b flex-none">
+        <CardTitle>Medication List</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0 flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto custom-scrollbar">
+          <div className="min-w-full inline-block align-middle">
+            <div className="overflow-hidden">
+              <table className="w-full border-collapse">
+                <thead className="bg-white sticky top-0 z-10 shadow-sm">
+                  <tr>
+                    <th className="text-left text-sm font-medium text-gray-400 p-4">
+                      Medication
+                    </th>
+                    <th className="text-left text-sm font-medium text-gray-400 p-4">
+                      Quantity
+                    </th>
+                    <th className="text-left text-sm font-medium text-gray-400 p-4">
+                      Frequency
+                    </th>
+                    <th className="text-left text-sm font-medium text-gray-400 p-4">
+                      Refills
+                    </th>
+                    <th className="text-right text-sm font-medium text-gray-400 p-4">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {medications.map((med) => (
+                    <tr 
+                      key={med.id} 
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="p-4">
+                        {editingId === med.id ? (
+                          <Input
+                            id="pillName"
+                            value={editFields.pillName}
+                            onChange={(e) =>
+                              setEditFields({ ...editFields, pillName: e.target.value })
+                            }
+                          />
+                        ) : (
+                          <p className="font-medium">{med.pillName}</p>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {editingId === med.id ? (
+                          <Input
+                            id="numberOfPills"
+                            type="number"
+                            value={editFields.numberOfPills ?? ""}
+                            onChange={(e) =>
+                              setEditFields({
+                                ...editFields,
+                                numberOfPills: Number(e.target.value),
+                              })
+                            }
+                          />
+                        ) : (
+                          <p>{med.numberOfPills} pills</p>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {editingId === med.id ? (
+                          <Input
+                            id="frequency"
+                            value={editFields.frequency ?? ""}
+                            onChange={(e) =>
+                              setEditFields({ ...editFields, frequency: e.target.value })
+                            }
+                          />
+                        ) : (
+                          <p>{med.frequency || "No frequency specified"}</p>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {editingId === med.id ? (
+                          <Input
+                            id="refills"
+                            type="number"
+                            value={editFields.refills}
+                            onChange={(e) =>
+                              setEditFields({ ...editFields, refills: Number(e.target.value) })
+                            }
+                          />
+                        ) : (
+                          <p>{med.refills} refills</p>
+                        )}
+                      </td>
+                      <td className="p-4 text-right">
+                        {editingId === med.id ? (
+                          <div className="space-x-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleSaveEdit(med.id)}
+                            >
+                              <Save className="h-5 w-5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={handleCancelEdit}
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-x-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditMedication(med)}
+                            >
+                              <Edit className="h-5 w-5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteMedication(med.id)}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <style jsx global>{`
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(156, 163, 175, 0.7);
+          }
+        `}</style>
+      </CardContent>
+    </Card>
       </div>
 
       {/* Refill Modal */}
