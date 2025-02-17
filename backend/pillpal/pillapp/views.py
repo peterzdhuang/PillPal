@@ -2,8 +2,8 @@ import json
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
-from .models import Medication, User, CaretakerVerification
-from .serializers import MedicationSerializer, UserSerializer
+from .models import Medication, User, CaretakerVerification, PatientLog
+from .serializers import MedicationSerializer, UserSerializer, PatientLogSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -154,6 +154,7 @@ class AllUsersView(APIView):
                 'email': user.email,
                 'is_caretaker': user.is_caretaker,
                 'password': user.password,
+                'caretaker_email': user.caretaker_email,
                 'image': user.image.url if user.image else None,
             }
             for user in users
@@ -500,3 +501,22 @@ class AnalyzeText(APIView):
             for user in users
         ]
         return Response(user_data)
+    
+    
+class PatientLogListCreateAPIView(generics.ListCreateAPIView):
+    """
+    GET: List all PatientLog entries.
+    POST: Create a new PatientLog entry.
+    """
+    queryset = PatientLog.objects.all()
+    serializer_class = PatientLogSerializer
+
+class PatientLogRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET: Retrieve a PatientLog entry.
+    PUT: Update a PatientLog entry.
+    PATCH: Partially update a PatientLog entry.
+    DELETE: Delete a PatientLog entry.
+    """
+    queryset = PatientLog.objects.all()
+    serializer_class = PatientLogSerializer
