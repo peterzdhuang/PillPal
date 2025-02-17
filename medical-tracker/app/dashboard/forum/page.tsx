@@ -6,14 +6,6 @@ const ForumPage: React.FC = () => {
     const {user} = useGlobalContext()
   return (
     <div className="relative w-full h-screen">
-      <div className="bg-teal-500 text-white text-center p-2 shadow-lg">
-        <a 
-          href={`/dashboard/${user}`} 
-          className="text-white text-lg font-bold hover:text-white transition-colors"
-        >
-          ← Back to Main Website
-        </a>
-      </div>
 
       <iframe
         src="https://capsulecorner.freeflarum.com"
