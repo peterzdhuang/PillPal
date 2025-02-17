@@ -18,23 +18,60 @@ type HealthData = {
 }
 
 export default function Dashboard() {
+  
   const [height, setHeight] = useState('')
   const [weight, setWeight] = useState('')
   const [systolic, setSystolic] = useState('')
   const [diastolic, setDiastolic] = useState('')
   const [steps, setSteps] = useState('')
   const [healthData, setHealthData] = useState<HealthData[]>([])
-
   useEffect(() => {
     const storedData = localStorage.getItem('healthData')
     if (storedData) {
       setHealthData(JSON.parse(storedData))
+    } else {
+      // Generate fake data if no existing data
+      const generateFakeData = () => {
+        const fakeData: HealthData[] = []
+        const startDate = new Date()
+        startDate.setDate(startDate.getDate() - 7) // 7 days ago
+  
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(startDate)
+          date.setDate(startDate.getDate() + i)
+          
+          const weight = 70 + Math.random() * 4 - 2 // Random between 68-72kg
+          const height = 170 // Average height in cm
+          const bmi = parseFloat((weight / parseFloat(((height / 100) ** 2).toFixed(1))).toFixed(1));
+
+          
+          fakeData.push({
+            date: date.toLocaleDateString(),
+            bmi,
+            weight: parseFloat(weight.toFixed(1)),
+            systolic: 120 + Math.floor(Math.random() * 10), // 120-130
+            diastolic: 80 + Math.floor(Math.random() * 5),  // 80-85
+            steps: 3000 + Math.floor(Math.random() * 5000),  // 3000-8000 steps
+          });
+        }
+        return fakeData
+      }
+  
+      const initialData = generateFakeData()
+      setHealthData(initialData)
+      localStorage.setItem('healthData', JSON.stringify(initialData))
     }
   }, [])
 
   useEffect(() => {
     localStorage.setItem('healthData', JSON.stringify(healthData))
   }, [healthData])
+   useEffect(() => {
+    const storedData = localStorage.getItem('healthData')
+    if (storedData) {
+      setHealthData(JSON.parse(storedData))
+    }
+  }, [])
 
   const addHealthData = () => {
     const newData: HealthData = { date: new Date().toLocaleDateString() }
