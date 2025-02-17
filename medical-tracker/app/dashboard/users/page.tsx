@@ -1,113 +1,297 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import axios from "axios"
-import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useGlobalContext } from "@/app/layout"
-import { Users, User as IconUser, Loader2, AlertCircle } from "lucide-react"
+import {
+  Users,
+  Mail,
+  Phone,
+  Shield,
+  Bell,
+  Image as ImageIcon,
+  ClipboardList,
+  AlertCircle,
+  Badge,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  Pill,
+  Clock,
+  Package,
+  ClipboardIcon,
+  Clipboard,
+} from "lucide-react"
+import { Button } from '@/components/ui/button';
 
 interface User {
   id: number
   first_name: string
   last_name: string
+  email: string
+  phone: string
+  is_caretaker: boolean
+  password: string
+  image: string | null
+  notifications: number
+  caretaker_email: string
 }
+const fakeUsers: User[] = [
+  { id: 1, first_name: "John", last_name: "Doe", email: "john@example.com", phone: "123-456-7890", is_caretaker: true, password: "", image: null, notifications: 5, caretaker_email: "caretaker@example.com" },
+  { id: 2, first_name: "Jane", last_name: "Smith", email: "jane@example.com", phone: "987-654-3210", is_caretaker: false, password: "", image: null, notifications: 2, caretaker_email: "caretaker@example.com" },
+  { id: 3, first_name: "Michael", last_name: "Brown", email: "michael@example.com", phone: "555-123-4567", is_caretaker: false, password: "", image: null, notifications: 3, caretaker_email: "caretaker@example.com" },
+  { id: 4, first_name: "Emily", last_name: "Davis", email: "emily@example.com", phone: "444-987-6543", is_caretaker: false, password: "", image: null, notifications: 4, caretaker_email: "caretaker@example.com" },
+  { id: 5, first_name: "Robert", last_name: "Johnson", email: "robert@example.com", phone: "222-555-7777", is_caretaker: false, password: "", image: null, notifications: 1, caretaker_email: "caretaker@example.com" },
+]
 
-export default function UserListPage() {
-  const { user } = useGlobalContext()
+interface Medication {
+  id: number
+  user: number | string
+  pillName: string
+  dosage: string | null
+  frequency: string | null
+  firstDose: string | null
+  secondDose: string | null
+  numberOfPills: number | null
+  lastTaken?: string
+  refills: number
+  directions: string | null
+  date: string | null
+}
+const fakeMedications: Medication[] = [
+  { id: 1, user: 1, pillName: "Aspirin", dosage: "100mg", frequency: "Daily", firstDose: "08:00", secondDose: null, numberOfPills: 30, refills: 2, directions: "Take with water", date: "2025-02-01" },
+  { id: 2, user: 2, pillName: "Lipitor", dosage: "20mg", frequency: "Daily", firstDose: "09:00", secondDose: null, numberOfPills: 30, refills: 1, directions: "After meal", date: "2025-02-02" },
+  { id: 3, user: 3, pillName: "Metformin", dosage: "500mg", frequency: "Twice daily", firstDose: "07:00", secondDose: "19:00", numberOfPills: 60, refills: 3, directions: "Take with food", date: "2025-02-03" },
+  { id: 4, user: 4, pillName: "Ibuprofen", dosage: "200mg", frequency: "Every 6 hours", firstDose: "10:00", secondDose: "16:00", numberOfPills: 20, refills: 2, directions: "Take with meal", date: "2025-02-04" },
+  { id: 5, user: 5, pillName: "Paracetamol", dosage: "500mg", frequency: "Every 8 hours", firstDose: "07:00", secondDose: "15:00", numberOfPills: 40, refills: 1, directions: "Take after food", date: "2025-02-05" },
+  { id: 1, user: 3, pillName: "Aspirin", dosage: "100mg", frequency: "Daily", firstDose: "08:00", secondDose: null, numberOfPills: 30, refills: 2, directions: "Take with water", date: "2025-02-01" },
+  { id: 2, user: 1, pillName: "Lipitor", dosage: "20mg", frequency: "Daily", firstDose: "09:00", secondDose: null, numberOfPills: 30, refills: 1, directions: "After meal", date: "2025-02-02" },
+  { id: 3, user: 1, pillName: "Metformin", dosage: "500mg", frequency: "Twice daily", firstDose: "07:00", secondDose: "19:00", numberOfPills: 60, refills: 3, directions: "Take with food", date: "2025-02-03" },
+  { id: 4, user: 2, pillName: "Ibuprofen", dosage: "200mg", frequency: "Every 6 hours", firstDose: "10:00", secondDose: "16:00", numberOfPills: 20, refills: 2, directions: "Take with meal", date: "2025-02-04" },
+  { id: 5, user: 2, pillName: "Paracetamol", dosage: "500mg", frequency: "Every 8 hours", firstDose: "07:00", secondDose: "15:00", numberOfPills: 40, refills: 1, directions: "Take after food", date: "2025-02-05" },
+  
+]
 
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
+
+export default function AnalyticsPage() {
+  
   const [users, setUsers] = useState<User[]>([])
+  const [medications, setMedications] = useState<Medication[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true)
-        const response = await axios.get(`http://localhost:8000/api/caretaker/patients/${user}`)
-        setUsers(response.data)
-        setError(null)
-      } catch (err) {
-        setError("Failed to fetch users. Please try again later.")
-        console.error("Error fetching caretaker users:", err)
-      } finally {
-        setLoading(false)
+    // Simulate API calls for users and medications
+    setLoading(true)
+    setTimeout(() => {
+      setUsers(fakeUsers)
+      setMedications(fakeMedications)
+      setLoading(false)
+    }, 1000)
+  }, [])
+  const urgentNotifications = users.reduce((acc, user) => {
+    const userMeds = medications.filter((med) => med.user === user.id)
+  
+    userMeds.forEach((med) => {
+      // Check for low refills
+      if (med.refills <= 1) {
+        acc.push({
+          id: `refill-${user.id}-${med.id}`,
+          message: `${user.first_name} ${user.last_name} is running low on ${med.pillName} (${med.dosage}). Refill needed!`,
+        })
       }
-    }
+  
+      // Check for missed doses (assuming lastTaken is required)
+      if (!med.lastTaken) {
+        if (med.firstDose) {
+          acc.push({
+            id: `missed-${user.id}-${med.id}-first`,
+            message: `${user.first_name} ${user.last_name} missed the ${med.firstDose} ${med.pillName} (${med.dosage}) pill today.`,
+          })
+        }
+        if (med.secondDose) {
+          acc.push({
+            id: `missed-${user.id}-${med.id}-second`,
+            message: `${user.first_name} ${user.last_name} missed the ${med.secondDose} ${med.pillName} (${med.dosage}) pill today.`,
+          })
+        }
+      }
+    })
+  
+    return acc
+  }, [] as { id: string; message: string }[])
+  
 
-    fetchUsers()
-  }, [user])
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    )
+  }
+  // Summary calculations
+  const caretakerCount = users.filter((user) => user.is_caretaker).length
+  const notificationsData = users.map((user) => ({
+    name: user.first_name,
+    notifications: user.notifications,
+  }))
+  const medicationsPerUser = users.map((user) => ({
+    name: user.first_name,
+    count: medications.filter((med) => med.user === user.id).length,
+  }))
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    )
+  }
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === users.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? users.length - 1 : prevIndex - 1
+    );
+  };
+
+  const currentUser = users[currentIndex];
+  const userNotifications = urgentNotifications.filter((notification) =>
+    notification.id.includes(`-${currentUser.id}-`)
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <Card className="bg-gradient-to-r from-primary/90 to-primary p-8 rounded-xl shadow-lg text-white">
-          <CardHeader>
-            <CardTitle className="text-4xl font-bold flex items-center gap-3">
-              <Users className="h-10 w-10" /> User List
-            </CardTitle>
-            <p className="mt-2 text-lg opacity-90">
-              Manage and view detailed information for your patients.
-            </p>
-          </CardHeader>
-        </Card>
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <Card className="bg-gradient-to-r from-primary/90 to-primary shadow-lg">
+            <CardHeader className="p-8">
+              <CardTitle className="text-4xl font-bold flex items-center gap-3 text-primary-foreground">
+                <Users className="h-10 w-10" /> Nursing Home Analytics
+              </CardTitle>
+              <p className="mt-2 text-lg text-primary-foreground/90">
+                Overview of patients, notifications, and medications
+              </p>
+            </CardHeader>
+          </Card>
+          <Card className="shadow-md overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Patient Details</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={prevSlide}
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {currentIndex + 1} / {users.length}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={nextSlide}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
 
-        {/* Users List */}
-        <Card className="shadow-md overflow-hidden">
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2 text-gray-600">Loading users...</p>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-lg font-semibold">
+                {currentUser.first_name} {currentUser.last_name}
+              </p>
+              <p className="text-sm text-muted-foreground flex items-center">
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications: {currentUser.notifications}
+              </p>
+              {currentUser.image && (
+                <p className="text-sm text-muted-foreground flex items-center">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Profile Picture Available
+                </p>
+              )}
+            </div>
+
+            {/* Urgent Notifications */}
+            {userNotifications.length > 0 && (
+              <div className="space-y-3">
+                <ul className="space-y-2">
+                  {userNotifications.map((notification) => (
+                    <li
+                      key={notification.id}
+                      className="bg-destructive/10 text-destructive rounded-md p-3 text-sm"
+                    >
+                      {notification.message}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ) : error ? (
-              <div className="flex items-center justify-center h-64 text-red-600">
-                <AlertCircle className="h-8 w-8 mr-2" />
-                <p>{error}</p>
-              </div>
-            ) : (
-              <ul className="divide-y divide-gray-200">
-                {users.map((userItem) => (
-                  <li
-                    key={userItem.id}
-                    className="p-6 hover:bg-gray-50 transition-colors duration-150"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-primary/10 p-3 rounded-full">
-                          <IconUser className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-lg font-semibold text-gray-800">
-                            {userItem.first_name} {userItem.last_name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-x-2">
-                        <Link href={`/dashboard/profile/${userItem.id}`}>
-                          <Button
-                            variant="outline"
-                            className="hover:bg-primary hover:text-white transition-colors"
-                          >
-                            View Profile
-                          </Button>
-                        </Link>
-                        <Link href={`/dashboard/${userItem.id}`}>
-                          <Button className="bg-primary text-white hover:bg-primary/90">
-                            View Dashboard
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
             )}
-          </CardContent>
-        </Card>
+             {medications.length > 0 && (
+              <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">Medications</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {medications.filter((med) => med.user === currentUser.id)
+                  .map((med) => (
+                    <Card key={med.id} className="border shadow-sm">
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-lg font-semibold flex items-center">
+                            <Pill className="h-5 w-5 mr-2 text-primary" />
+                            {med.pillName}
+                          </p>
+                          <span
+                            className={`text-xs font-medium px-2 py-1 rounded-md ${
+                              med.refills <= 1
+                                ? "bg-red-100 text-red-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {med.refills <= 1 ? "Low Refill" : "Sufficient Refills"}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          <ClipboardList className="inline h-4 w-4 mr-1" />
+                          <strong> Dosage:</strong> {med.dosage || "N/A"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <Clock className="inline h-4 w-4 mr-1" />
+                          <strong> Frequency:</strong> {med.frequency || "N/A"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <ClipboardIcon className="inline h-4 w-4 mr-1"/>
+                          <strong> Directions:</strong> {med.directions || "No directions"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <Package className="inline h-4 w-4 mr-1" />
+                          <strong> Quantity:</strong> {med.numberOfPills ?? "Unknown"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+
+
       </div>
+    </div>
     </div>
   )
 }

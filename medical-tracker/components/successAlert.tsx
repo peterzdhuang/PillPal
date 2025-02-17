@@ -19,7 +19,7 @@ export function SuccessAlert({ title, message, onClose, duration = 5000 }: Succe
       setIsVisible(false)
       setTimeout(onClose, 500) // Wait for exit animation before calling onClose
     }, duration)
-
+    
     return () => {
       clearTimeout(entranceTimer)
       clearTimeout(exitTimer)

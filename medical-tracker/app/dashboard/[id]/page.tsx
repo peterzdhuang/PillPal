@@ -125,7 +125,6 @@ export default function DashboardPage() {
   const [refillAmount, setRefillAmount] = useState<number | "">("");
   // State for displayed nearby drugstores
   const [displayedStores, setDisplayedStores] = useState<any[]>([]);
-
   const user = useGlobalContext();
 
   // When opening the refill modal, randomize and select 3 nearby drugstores.
@@ -137,6 +136,7 @@ export default function DashboardPage() {
 
   // Confirm refill via modal input
   const handleConfirmRefill = async () => {
+
     if (!user || !user.user || !selectedMedication) return;
     if (!refillAmount || Number(refillAmount) <= 0) {
       alert("Please enter a valid number greater than 0");
@@ -165,6 +165,7 @@ export default function DashboardPage() {
             : m
         )
       );
+
       alert(
         `Medication ${selectedMedication.pillName} refilled with ${newQuantity} pills!`
       );
@@ -337,9 +338,7 @@ export default function DashboardPage() {
             : m
         )
       );
-      alert(
-        `Medication ${med.pillName} taken! Next dose on ${nextDueDate.toLocaleDateString()}`
-      );
+      
     } catch (err) {
       console.error("Error taking medication:", err);
       alert("Failed to take medication.");
