@@ -42,6 +42,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { SuccessAlert } from "@/components/successAlert";
 const getScheduleTimes = (frequency: string): string[] => {
   switch (frequency) {
     case 'Once daily':
@@ -81,6 +82,8 @@ interface Medication {
 }
 
 export default function DashboardPage() {
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertInfo, setAlertInfo] = useState<{ title: string; message: string } | null>(null)
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -105,6 +108,7 @@ export default function DashboardPage() {
         );
 
         const transformed = res.data.map((serverMed: any) => ({
+
           id: serverMed.id,
           user: serverMed.user,
           pillName: serverMed.name ?? "Unknown",
@@ -118,6 +122,7 @@ export default function DashboardPage() {
           directions: serverMed.directions,
           date: serverMed.date_prescribed,
         }));
+        console.log(transformed);
 
         setMedications(transformed);
       } catch (err) {
@@ -208,7 +213,27 @@ export default function DashboardPage() {
   };
 
   // Take medication – POST to a dedicated endpoint that updates lastTaken and calculates the new next due date
-  const handleTakeMedication = async (med: Medication) => {
+  const handleTakeMedication = async (id: string, med: Medication) => {
+
+    const lastHyphenIndex = id.lastIndexOf('-');  // Use LAST hyphen
+
+    let medId: string;  // Declare with let for block scope
+    let time: string;
+
+    if (lastHyphenIndex === -1) {
+        // Proper error handling
+        throw new Error('Invalid medication ID format - missing hyphen');
+        // Or: return; if you prefer silent failure
+    } else {
+        // Assign to outer variables (don't redeclare with const)
+        medId = id.substring(0, lastHyphenIndex);
+        time = id.substring(lastHyphenIndex + 1);
+    }
+
+    // Now use medId and time safely
+    console.log('Split values:', { medId, time });
+
+    med.id = parseInt(medId, 10);  
     if (!user || !user.user) return;
     const currentQty = Number(med.numberOfPills) || 0;
     if (currentQty <= 0) {
@@ -216,7 +241,6 @@ export default function DashboardPage() {
       return;
     }
     const updatedQty = currentQty - 1;
-
     // Set lastTaken to now and calculate next due date based solely on frequency
     const lastTakenDate = new Date();
     const nextDueDate = new Date(lastTakenDate);
@@ -255,9 +279,11 @@ export default function DashboardPage() {
             : m
         )
       );
-      alert(
-        `Medication ${med.pillName} taken! Next dose on ${nextDueDate.toLocaleDateString()}`
-      );
+      setAlertInfo({
+        title: "Medication Taken",
+        message: `${med.pillName} taken! Next dose on }`,
+      })
+      setShowAlert(true)
     } catch (err) {
       console.error("Error taking medication:", err);
       alert("Failed to take medication.");
@@ -374,15 +400,22 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
+        
         <div className="bg-gradient-to-r from-primary/90 to-primary p-8 rounded-xl shadow-lg text-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4">
             <div>
               <h1 className="text-4xl font-bold">Medication Dashboard</h1>
-              <p className="text-white/80">
-                Managing {medications.length} medications | {totalPills} pills in stock
-              </p>
             </div>
+            {showAlert && alertInfo && (
+              <SuccessAlert
+                title={alertInfo.title}
+                message={alertInfo.message}
+                onClose={() => setShowAlert(false)}
+                duration={5000}
+              />
+            )}
+
+
             <Link href={`/dashboard/scan/${user.user}`}>
               <Button className="bg-white text-primary hover:bg-white/90">
                 <PlusCircle className="mr-2 h-5 w-5" />
@@ -394,6 +427,7 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
           <Card className="bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-green-700">
@@ -534,7 +568,7 @@ export default function DashboardPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleTakeMedication(item)}
+                        onClick={() => handleTakeMedication(item.id, item)}
                       >
                         Take
                       </Button>
