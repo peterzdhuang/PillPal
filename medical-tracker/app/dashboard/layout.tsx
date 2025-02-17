@@ -51,10 +51,10 @@ export default function DashboardLayout({
             <nav className="space-y-2 flex-grow">
                 <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <div className="container flex h-14 items-center justify-between">
-                    <Link href={`/`} className="flex items-center space-x-2">
-                        <PillIcon className="h-7 w-7 text-[#21b4a5]" />
-                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#21b4a5] to-[#21b4a5]/70">PillPal</span>
-                    </Link>
+                        <Link href={`/`} className="flex items-center space-x-2">
+                            <PillIcon className="h-7 w-7 text-[#21b4a5]" />
+                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#21b4a5] to-[#21b4a5]/70">PillPal</span>
+                        </Link>
                     </div>
                 </header>
                 {caretaker ? (
