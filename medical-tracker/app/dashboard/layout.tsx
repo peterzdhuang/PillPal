@@ -65,11 +65,11 @@ export default function DashboardLayout({
               <span>Health Tracker</span>
             </Link>
             <Link
-              href={`/dashboard/medications`}
+              href={`/dashboard/logs`}
               className="flex items-center gap-x-2 p-2 rounded hover:bg-gray-200"
             >
               <PillIcon className="h-5 w-5" />
-              <span>Medications</span>
+              <span>Logs</span>
             </Link>
             <Link
               href={`/dashboard/scan`}
