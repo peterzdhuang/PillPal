@@ -24,6 +24,7 @@ import TextScanner, { MedicationFields } from "@/components/TextExtract";
 import axios from "axios";
 import { useGlobalContext } from "@/app/layout";
 import { useRouter } from "next/navigation";
+import { CustomAlert } from "@/components/customAlert";
 
 export default function ScanPage() {
   const [showScanner, setShowScanner] = useState(false);
@@ -37,6 +38,8 @@ export default function ScanPage() {
   const [frequency, setFrequency] = useState("");
   const [directions, setDirections] = useState("");
   const [refills, setRefills] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const { user } = useGlobalContext(); 
   const router = useRouter();
@@ -45,18 +48,40 @@ export default function ScanPage() {
   // Save Medication
   // -------------------------
   const handleSaveMedication = async () => {
+    // Validate all required fields
+    if (
+      !pharmacyName.trim() ||
+      !pharmacyAddress.trim() ||
+      !pillName.trim() ||
+      !date.trim() ||
+      !numberOfPills.trim() ||
+      !frequency.trim() ||
+      !directions.trim() ||
+      !refills.trim()
+    ) {
+      setAlertMessage("Please fill in all required fields before saving.");
+      setShowAlert(true);
+      return;
+    }
+    if (isNaN(Number(numberOfPills)) || isNaN(Number(refills))) {
+      setAlertMessage("Quantity and Refills must be valid numbers");
+      setShowAlert(true);
+      return;
+    }
+  
+    // Rest of the function remains the same
     const medicationData = {
-      user: user, // or user.id if "user" is an object
-      name: pillName || "Unknown",
-      pharmacy_name: pharmacyName || null,
-      pharmacy_address: pharmacyAddress || null,
-      date_prescribed: date || null,
-      quantity: numberOfPills ? parseInt(numberOfPills, 10) : 0,
-      frequency: frequency || null,
-      directions: directions || null,
-      refills_remaining: refills ? parseInt(refills, 10) : 0,
+      user: user,
+      name: pillName,
+      pharmacy_name: pharmacyName,
+      pharmacy_address: pharmacyAddress,
+      date_prescribed: date,
+      quantity: parseInt(numberOfPills, 10),
+      frequency: frequency,
+      directions: directions,
+      refills_remaining: parseInt(refills, 10),
     };
-
+  
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/medications/",
@@ -66,8 +91,6 @@ export default function ScanPage() {
         }
       );
       console.log("Medication saved:", response.data);
-
-      // Redirect to dashboard after saving
       router.push(`/dashboard/${user}`);
     } catch (error) {
       console.error("Error saving medication:", error);
@@ -91,7 +114,15 @@ export default function ScanPage() {
 
   return (
     <div className="container max-w-xl py-6">
+
       <div className="flex items-center mb-4">
+        {showAlert && (
+          <CustomAlert
+            message={alertMessage}
+            onClose={() => setShowAlert(false)}
+            duration={5000}
+          />
+        )}
         <button
           onClick={() => router.back()}
           className="flex items-center space-x-2 text-muted-foreground hover:text-primary"
