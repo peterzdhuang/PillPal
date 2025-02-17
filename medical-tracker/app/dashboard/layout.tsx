@@ -13,18 +13,43 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useGlobalContext } from "@/app/layout";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useGlobalContext();
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:8000/api/patients/${user.user}`);
+        setUsers(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch users. Please try again later.');
+        console.error('Error fetching caretaker users:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [user?.user]);
   if (!user) {
     return <p>No user logged in</p>;
   } else {
     console.log(user);
   }
+
+  
+
 
   return (
     <div className="flex min-h-screen flex-col">
