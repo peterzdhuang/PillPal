@@ -14,7 +14,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState<string>("")
   const router = useRouter()
   const { updateUser } = useGlobalContext()
+  const [caretaker, setCaretaker] = useState<any>(null)
+  const [caretakerEmail, setCaretakerEmail] = useState<string>("")
 
+  const { user } = useGlobalContext();
+  useEffect(() => {
+    if (!user) return
+
+    axios
+      .get(`http://localhost:8000/api/caretaker/${user}/`)
+      .then((response) => {
+        console.log("Fetched caretaker data:", response.data)
+        // If caretaker exists, store it
+        setCaretaker(response.data)
+        // Also set caretakerEmail to the caretaker's email
+        if (response.data && response.data.email) {
+          setCaretakerEmail(response.data.email)
+        }
+      })
+      .catch((error) => {
+        // If there's no caretaker assigned, your API might return 404 or a custom response
+        console.error("Error fetching caretaker data:", error)
+      })
+  }, [user])
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -27,7 +49,13 @@ export default function LoginPage() {
       if (response.status === 200) {
         const userId = response.data.id
         updateUser(userId)
-        router.push(`/dashboard/${userId}`)
+
+        if (caretaker) {
+          router.push(`/dashboard/users`)
+        } else {
+          router.push(`/dashboard/${userId}`)
+
+        }
       }
     } catch (error) {
       console.error("Login failed", error)
