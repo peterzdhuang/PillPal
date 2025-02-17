@@ -39,3 +39,10 @@ class CaretakerVerification(models.Model):
 
     def __str__(self):
         return f"{self.patient_email} verified by {self.caretaker_email}"
+
+class PatientLog(models.Model):
+    patient_email = models.EmailField()
+    caretaker_email = models.EmailField()
+    description = models.CharField(max_length=2500, blank=True, null=True)
+    datetime = models.DateTimeField()
+    

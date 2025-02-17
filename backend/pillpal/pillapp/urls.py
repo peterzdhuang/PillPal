@@ -20,6 +20,8 @@ urlpatterns = [
     path('api/caretaker/<int:user_id>/', views.CareTaker.as_view(), name='caretaker'),
     path('api/medications/<int:user_id>/<int:medication_id>/', views.SingleMedicationView.as_view(), name='single-med'),
     path('api/verify_patient/', views.VerifyPatientView.as_view(), name='verify_patient'),
+    path('api/patient-logs/', views.PatientLogListCreateAPIView.as_view(), name='patient-log-list-create'),
+    path('api/patient-logs/<int:pk>/', views.PatientLogRetrieveUpdateDestroyAPIView.as_view(), name='patient-log-detail'),
     
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
